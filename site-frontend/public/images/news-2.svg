@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Redução de vulnerabilidades">
+  <rect width="800" height="500" fill="#c6c6c6"/>
+  <rect width="800" height="500" fill="#932026" fill-opacity="0.08"/>
+  <g fill="none" stroke="#661615" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M310 250 C310 205 350 175 400 175 C450 175 490 205 490 250 C490 295 450 325 400 325 C350 325 310 295 310 250 Z"/>
+    <circle cx="400" cy="250" r="34"/>
+  </g>
+</svg>

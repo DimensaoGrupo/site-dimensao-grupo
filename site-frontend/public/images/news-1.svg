@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Segurança preventiva">
+  <rect width="800" height="500" fill="#c6c6c6"/>
+  <rect width="800" height="500" fill="#932026" fill-opacity="0.08"/>
+  <g fill="none" stroke="#661615" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M400 130 L470 155 V245 C470 300 440 335 400 350 C360 335 330 300 330 245 V155 Z"/>
+    <path d="M365 240 L392 268 L440 210" />
+  </g>
+</svg>

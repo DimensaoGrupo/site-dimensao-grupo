@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Reconhecimento facial">
+  <rect width="800" height="500" fill="#c6c6c6"/>
+  <rect width="800" height="500" fill="#932026" fill-opacity="0.08"/>
+  <g fill="none" stroke="#661615" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M330 190 v-20 a10 10 0 0 1 10-10 h20" />
+    <path d="M470 190 v-20 a10 10 0 0 0 -10-10 h-20" />
+    <path d="M330 310 v20 a10 10 0 0 0 10 10 h20" />
+    <path d="M470 310 v20 a10 10 0 0 1 -10 10 h-20" />
+    <circle cx="400" cy="250" r="45"/>
+    <path d="M382 250 a18 18 0 0 1 36 0" />
+  </g>
+</svg>
