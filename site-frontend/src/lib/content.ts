@@ -17,13 +17,13 @@ export const mainNav = [
 
 export const heroSlides = [
   {
-    image: "/images/hero-portaria.jpg",
+    image: "/images/hero-portaria.svg",
     eyebrow: "PORTARIA E CONTROLE DE ACESSO",
     title: "Recepção e portaria com precisão em cada detalhe",
     text: "Equipes treinadas para gerenciar o fluxo de pessoas e veículos com cordialidade, agilidade e segurança.",
   },
   {
-    image: "/images/hero-vigilancia.jpg",
+    image: "/images/hero-vigilancia.svg",
     eyebrow: "VIGILÂNCIA PATRIMONIAL",
     title: "Nós garantimos sua segurança",
     text: "Profissionais preparados para as mais diversas situações, 24 horas por dia, todos os dias da semana.",
