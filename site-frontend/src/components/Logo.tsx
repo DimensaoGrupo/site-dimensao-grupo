@@ -22,7 +22,6 @@ export default function Logo({ className = "", height = 40 }: LogoProps) {
         width={width}
         height={height}
         priority
-        style={{ height, width: "auto" }}
       />
     </Link>
   );

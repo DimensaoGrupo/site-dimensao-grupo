@@ -31,7 +31,6 @@ export default function Footer() {
     y,
     pointerEvents,
     isFocusRevealed,
-    prefersReducedMotion,
   } = useFooterReveal();
 
   useEffect(() => {
@@ -161,25 +160,28 @@ export default function Footer() {
     </>
   );
 
-  if (prefersReducedMotion) {
-    return (
-      <footer id="contato" className="bg-[#201a1a] text-white/80">
-        {content}
-      </footer>
-    );
-  }
-
+  // Always the fixed+spacer structure — branching to a different static
+  // <footer> under prefers-reduced-motion (or, the same way, under mobile)
+  // caused a hydration mismatch (useReducedMotion()/matchMedia can't
+  // resolve identically on the server, which has no window, and the
+  // client's first paint). useFooterReveal already renders this fully
+  // revealed and static under reduced motion *and* on mobile via its own
+  // transform-output branching, which is hydration-safe. The fixed
+  // positioning itself is disabled below `md` with a plain responsive
+  // class, since that's a static string either way — never JS-conditional.
   return (
     <>
-      {/* Reserves the scroll room a fixed footer can't claim on its own,
-          and is the real (in-flow) landing target for "#contato" links —
-          the fixed footer below always sits at the viewport edge, so its
-          own position can't be used for anchor scrolling. */}
+      {/* Reserves the scroll room a fixed footer can't claim on its own
+          (desktop only — mobile has no reveal, so no room to reserve), and
+          is the real (in-flow) landing target for "#contato" links — the
+          fixed footer below always sits at the viewport edge, so its own
+          position can't be used for anchor scrolling. */}
       <div
         id="contato"
         ref={spacerRef}
         aria-hidden="true"
-        style={{ height: spacerHeight }}
+        className="md:h-(--footer-spacer-h)"
+        style={{ ["--footer-spacer-h" as string]: `${spacerHeight}px` }}
       />
       <motion.footer
         ref={footerRef}
@@ -187,7 +189,7 @@ export default function Footer() {
           opacity: isFocusRevealed ? 1 : opacity,
           pointerEvents: isFocusRevealed ? "auto" : pointerEvents,
         }}
-        className="fixed inset-x-0 bottom-0 z-0 bg-[#201a1a] text-white/80"
+        className="bg-[#201a1a] text-white/80 md:fixed md:inset-x-0 md:bottom-0 md:z-0"
       >
         <motion.div style={{ y: isFocusRevealed ? 0 : y }}>
           {content}

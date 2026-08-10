@@ -8,6 +8,11 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
+import { useMediaQuery } from "./useMediaQuery";
+
+// Matches the breakpoint the rest of the site already treats as "not
+// mobile" (e.g. the header's topbar: `hidden md:block`).
+const NOT_MOBILE_QUERY = "(min-width: 768px)";
 
 type FooterReveal = {
   /** Attach to the fixed, visible footer layer — also measured for spacer height. */
@@ -41,6 +46,13 @@ export function useFooterReveal(): FooterReveal {
   const [spacerHeight, setSpacerHeight] = useState(0);
   const [isFocusRevealed, setIsFocusRevealed] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const isMobile = !useMediaQuery(NOT_MOBILE_QUERY);
+  // Mobile gets the same "always revealed, no animation" treatment as
+  // reduced motion — the fixed/scroll-reveal mechanic reads as glitchy
+  // rather than premium on a phone (address-bar resizing, rubber-band
+  // scroll physics), and a footer that just sits at the bottom like normal
+  // is the more predictable, intuitive behavior there.
+  const skipReveal = Boolean(prefersReducedMotion) || isMobile;
 
   useEffect(() => {
     const node = footerRef.current;
@@ -87,15 +99,15 @@ export function useFooterReveal(): FooterReveal {
   const opacity = useTransform(
     smoothProgress,
     [0, 1],
-    prefersReducedMotion ? [1, 1] : [0, 1],
+    skipReveal ? [1, 1] : [0, 1],
   );
   const y = useTransform(
     smoothProgress,
     [0, 1],
-    prefersReducedMotion ? [0, 0] : [40, 0],
+    skipReveal ? [0, 0] : [40, 0],
   );
   const pointerEvents = useTransform(smoothProgress, (value) =>
-    value > 0.05 || prefersReducedMotion ? "auto" : "none",
+    value > 0.05 || skipReveal ? "auto" : "none",
   );
 
   return {

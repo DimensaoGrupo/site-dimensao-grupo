@@ -12,6 +12,11 @@ type RollingTextProps = {
 };
 
 const EASE: [number, number, number, number] = [0.76, 0, 0.24, 1];
+// Non-breaking space, spelled out via charCode rather than a literal
+// character in the source — a raw NBSP here has twice already been
+// silently normalized back to a regular space by tooling (formatter/IDE),
+// which collapses it to zero width and runs words together.
+const NBSP = String.fromCharCode(160);
 
 /**
  * Rolling-text label: on `active`, each character slides up and is replaced
@@ -21,6 +26,13 @@ const EASE: [number, number, number, number] = [0.76, 0, 0.24, 1];
  * The real text is exposed once via a visually-hidden node; the animated
  * characters are `aria-hidden`, so screen readers read the label exactly
  * once regardless of how many times it's visually duplicated.
+ *
+ * The DOM structure is identical regardless of `prefers-reduced-motion` —
+ * `useReducedMotion()` can't resolve to the same value on the server as on
+ * the client, so branching the *tree shape* on it (e.g. returning a plain
+ * `<span>` instead) causes a hydration mismatch. Reduced motion only zeroes
+ * the transition duration, which is safe: it's consumed by Motion at
+ * runtime, not reflected in the server-rendered markup.
  */
 export default function RollingText({
   text,
@@ -29,11 +41,6 @@ export default function RollingText({
   stagger = 0.025,
 }: RollingTextProps) {
   const prefersReducedMotion = useReducedMotion();
-
-  if (prefersReducedMotion) {
-    return <span className={className}>{text}</span>;
-  }
-
   const characters = Array.from(text);
 
   return (
@@ -41,9 +48,7 @@ export default function RollingText({
       <span className="sr-only">{text}</span>
       <span aria-hidden="true" className="inline-flex">
         {characters.map((char, i) => {
-          // A literal space inside an inline-block/flex box can collapse to
-          // zero width in some browsers — nbsp keeps it real.
-          const glyph = char === " " ? " " : char;
+          const glyph = char === String.fromCharCode(32) ? NBSP : char;
           return (
             <span
               key={i}
@@ -54,7 +59,11 @@ export default function RollingText({
                 initial={false}
                 animate={active ? "active" : "rest"}
                 variants={{ rest: { y: "0%" }, active: { y: "-50%" } }}
-                transition={{ duration: 0.5, ease: EASE, delay: i * stagger }}
+                transition={{
+                  duration: prefersReducedMotion ? 0 : 0.5,
+                  ease: EASE,
+                  delay: prefersReducedMotion ? 0 : i * stagger,
+                }}
               >
                 <span className="block leading-none">{glyph}</span>
                 <span className="block leading-none">{glyph}</span>

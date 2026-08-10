@@ -6,11 +6,16 @@ import { motion, type MotionValue } from "motion/react";
 type CarouselProgressProps = {
   count: number;
   activeIndex: number;
-  /** 0→1 dwell progress for the active slide; ignored (dot renders solid) under reduced motion. */
+  /**
+   * 0→1 dwell progress for the active slide. Under reduced motion,
+   * `useCarouselAutoplay` pins this at 1 itself (post-mount, not during
+   * render) so the dot renders solid — kept as the single source here
+   * rather than swapping in a literal, which would make the very first
+   * client render disagree with the server and trip a hydration mismatch.
+   */
   progress: MotionValue<number>;
   labels: string[];
   idPrefix: string;
-  isReducedMotion: boolean;
   onSelect: (index: number) => void;
 };
 
@@ -26,7 +31,6 @@ export default function CarouselProgress({
   progress,
   labels,
   idPrefix,
-  isReducedMotion,
   onSelect,
 }: CarouselProgressProps) {
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -76,7 +80,7 @@ export default function CarouselProgress({
               aria-hidden="true"
               className="absolute inset-y-0 left-0 w-full origin-left rounded-full bg-white"
               style={{
-                scaleX: isActive ? (isReducedMotion ? 1 : progress) : 0,
+                scaleX: isActive ? progress : 0,
               }}
             />
           </button>

@@ -39,7 +39,7 @@ export default function QualitySection() {
   );
 
   return (
-    <section className="section-y border-t border-gray-light/60 bg-white" ref={rootRef}>
+    <section className="section-y border-t border-gray-light/60 bg-[#f7f6f6]" ref={rootRef}>
       <div className="container-page grid grid-cols-1 items-center gap-12 lg:grid-cols-[auto_1fr] lg:gap-16">
         <div className="quality-seal shrink-0">
           <Image

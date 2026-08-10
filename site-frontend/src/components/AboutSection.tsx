@@ -23,6 +23,16 @@ export default function AboutSection() {
         },
       );
       gsap.fromTo(
+        ".about-image",
+        { scale: 1.08 },
+        {
+          scale: 1,
+          duration: 1.1,
+          ease: "power3.out",
+          scrollTrigger: { trigger: rootRef.current, start: "top 75%" },
+        },
+      );
+      gsap.fromTo(
         ".about-badge",
         { scale: 0.85, autoAlpha: 0 },
         {
@@ -39,7 +49,7 @@ export default function AboutSection() {
   );
 
   return (
-    <section id="sobre" className="section-y bg-white" ref={rootRef}>
+    <section id="sobre" className="section-y bg-[#f7f6f6]" ref={rootRef}>
       <div className="container-page grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <div className="about-media relative order-2 lg:order-1">
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
@@ -48,7 +58,7 @@ export default function AboutSection() {
               alt="Equipe de segurança do Grupo Dimensão em atuação"
               fill
               sizes="(min-width: 1024px) 40vw, 90vw"
-              className="object-cover"
+              className="about-image object-cover"
               loading="lazy"
             />
           </div>

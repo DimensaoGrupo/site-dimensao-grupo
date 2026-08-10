@@ -23,7 +23,7 @@ function NewsCard({ item }: { item: (typeof news)[number] }) {
 
   return (
     <article className="news-card group flex flex-col overflow-hidden rounded-2xl border border-gray-light/70 transition-shadow duration-300 hover:shadow-[0_20px_40px_rgba(32,26,26,0.1)]">
-      <div className="relative aspect-[16/10] w-full overflow-hidden">
+      <div className="news-card-media relative aspect-[16/10] w-full overflow-hidden">
         <Image
           src={item.image}
           alt=""
@@ -71,6 +71,20 @@ export default function NewsSection() {
           y: 0,
           autoAlpha: 1,
           duration: 0.7,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
+        },
+      );
+      // Wrapper (not the <Image> itself) so the entrance settle doesn't
+      // fight the existing CSS hover-zoom, which animates the image's own
+      // transform independently.
+      gsap.fromTo(
+        ".news-card-media",
+        { scale: 1.08 },
+        {
+          scale: 1,
+          duration: 1,
           ease: "power3.out",
           stagger: 0.1,
           scrollTrigger: { trigger: rootRef.current, start: "top 78%" },

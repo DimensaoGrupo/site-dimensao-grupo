@@ -42,35 +42,41 @@ export const services = [
     title: "Recepção e Portaria",
     description:
       "Venha conhecer mais sobre a prestação de serviço de recepção e portaria.",
+    href: "/servicos/recepcao-e-portaria",
   },
   {
     icon: "cctv",
     title: "CFTV e Monitoramento",
     description:
       "Tecnologia de ponta e profissionais prontos para lhe ajudar quando necessário.",
+    href: "/servicos/cftv-e-monitoramento",
   },
   {
     icon: "access",
     title: "Controle de Acesso",
     description: "Soluções personalizadas para sua empresa ou condomínio.",
+    href: "/servicos/controle-de-acesso",
   },
   {
     icon: "clock",
     title: "Atendimento e Equipe 24h",
     description:
       "Equipe de prontidão 24h por dia, todos os dias da semana, e central de atendimento 24h.",
+    href: "/servicos/atendimento-e-equipe-24h",
   },
   {
     icon: "garden",
     title: "Conservação Patrimonial",
     description:
       "Soluções em conservação patrimonial e jardinagem na medida certa para suas necessidades.",
+    href: "/servicos/conservacao-patrimonial",
   },
   {
     icon: "shield",
     title: "Vigilância Armada",
     description:
       "Soluções em vigilância e segurança patrimonial para garantir a sua tranquilidade.",
+    href: "/servicos/vigilancia-armada",
   },
 ] as const;
 

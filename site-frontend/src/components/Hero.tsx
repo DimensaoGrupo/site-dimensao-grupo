@@ -220,7 +220,6 @@ export default function Hero() {
           progress={progress}
           labels={heroSlides.map((slide) => slide.eyebrow)}
           idPrefix="hero-slide"
-          isReducedMotion={isReducedMotion}
           onSelect={goTo}
         />
       </div>

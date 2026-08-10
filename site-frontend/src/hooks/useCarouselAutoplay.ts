@@ -77,6 +77,16 @@ export function useCarouselAutoplay({
   const next = useCallback(() => goTo(index + 1), [goTo, index]);
   const prev = useCallback(() => goTo(index - 1), [goTo, index]);
 
+  // Pin the dot solid under reduced motion. This has to happen post-mount
+  // (here, not during render) — `progress` always starts at 0 the same way
+  // on the server and on the client's first paint, and only diverges once
+  // this effect runs, which is after hydration has already reconciled.
+  // Branching the *initial* value on `isReducedMotion` directly would make
+  // the client's first render disagree with the server-rendered markup.
+  useEffect(() => {
+    if (isReducedMotion) progress.set(1);
+  }, [isReducedMotion, progress]);
+
   useEffect(() => {
     if (isPaused) return undefined;
 

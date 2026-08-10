@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
@@ -13,6 +14,7 @@ import {
   ClockIcon,
   GardenIcon,
   ShieldIcon,
+  ArrowRightIcon,
 } from "./icons";
 
 const iconMap = {
@@ -62,23 +64,28 @@ export default function ServicesSection() {
           {services.map((service) => {
             const Icon = iconMap[service.icon];
             return (
-              <motion.div
-                key={service.title}
-                className="service-card group relative overflow-hidden rounded-2xl border border-gray-light/70 bg-white p-8"
-                whileHover={{ y: -6, scale: 1.015 }}
-                transition={{ type: "spring", stiffness: 300, damping: 22 }}
-              >
-                <div className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#f7f6f6] text-primary-muted transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
-                  <Icon className="h-7 w-7" />
-                </div>
-                <h3 className="mt-6 text-lg font-bold text-foreground">
-                  {service.title}
-                </h3>
-                <p className="mt-2.5 text-[15px] leading-relaxed text-gray-medium">
-                  {service.description}
-                </p>
-              </motion.div>
+              <Link key={service.title} href={service.href} className="service-card block">
+                <motion.div
+                  className="group relative h-full overflow-hidden rounded-2xl border border-gray-light/70 bg-white p-8 transition-shadow duration-300 hover:shadow-[0_20px_40px_rgba(32,26,26,0.1)]"
+                  whileHover={{ y: -6, scale: 1.015 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#f7f6f6] text-primary-muted transition-colors duration-300 group-hover:bg-primary group-hover:text-white">
+                    <Icon className="h-7 w-7" />
+                  </div>
+                  <h3 className="mt-6 text-lg font-bold text-foreground">
+                    {service.title}
+                  </h3>
+                  <p className="mt-2.5 text-[15px] leading-relaxed text-gray-medium">
+                    {service.description}
+                  </p>
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                    Saiba mais
+                    <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  </span>
+                </motion.div>
+              </Link>
             );
           })}
         </div>
