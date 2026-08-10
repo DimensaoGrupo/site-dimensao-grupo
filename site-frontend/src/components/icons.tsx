@@ -21,6 +21,16 @@ export function ReceptionIcon({ className }: IconProps) {
   );
 }
 
+export function TurnstileIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} {...base} aria-hidden="true">
+      <path d="M20 20V6M20 20l12 7M20 20L8 27" />
+      <circle cx="20" cy="20" r="2.6" />
+      <path d="M6 32h28" />
+    </svg>
+  );
+}
+
 export function CctvIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 40 40" className={className} {...base} aria-hidden="true">
@@ -68,6 +78,37 @@ export function ShieldIcon({ className }: IconProps) {
     <svg viewBox="0 0 40 40" className={className} {...base} aria-hidden="true">
       <path d="M20 6l12 5v9c0 8-5.5 13-12 15-6.5-2-12-7-12-15v-9l12-5Z" />
       <path d="M15 19.5l3.5 3.5L26 15" />
+    </svg>
+  );
+}
+
+export function BadgeCheckIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} {...base} aria-hidden="true">
+      <circle cx="20" cy="17" r="10" />
+      <path d="M15.5 17.5l3 3.5 6-7.5" />
+      <path d="M14 25.5L10 33l6-2 4 4 4-4 6 2-4-7.5" />
+    </svg>
+  );
+}
+
+export function HeadsetIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} {...base} aria-hidden="true">
+      <path d="M8 21a12 12 0 0 1 24 0" />
+      <rect x="6" y="21" width="7" height="10" rx="3" />
+      <rect x="27" y="21" width="7" height="10" rx="3" />
+      <path d="M34 29v2a5 5 0 0 1-5 5h-5" />
+    </svg>
+  );
+}
+
+export function BuildingIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} {...base} aria-hidden="true">
+      <rect x="10" y="8" width="20" height="26" rx="1" />
+      <path d="M15 15h4M21 15h4M15 21h4M21 21h4" />
+      <path d="M17 34v-6h6v6" />
     </svg>
   );
 }

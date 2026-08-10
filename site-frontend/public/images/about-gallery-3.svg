@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-label="Central de monitoramento">
+  <defs>
+    <linearGradient id="bgG3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#201a1a"/>
+      <stop offset="100%" stop-color="#661615"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#bgG3)"/>
+  <g opacity="0.85" fill="none" stroke="#ffffff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="260" y="330" width="300" height="220" rx="10"/>
+    <circle cx="410" cy="440" r="65"/>
+    <path d="M560 380l90-45v260l-90-45"/>
+  </g>
+  <text x="60" y="800" font-family="Arial, sans-serif" font-size="22" letter-spacing="3" fill="#ffffff" fill-opacity="0.35">MONITORAMENTO</text>
+</svg>

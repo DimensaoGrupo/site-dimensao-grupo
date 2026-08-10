@@ -8,7 +8,7 @@ import { gsap } from "@/lib/gsap";
 import { services } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
 import {
-  ReceptionIcon,
+  TurnstileIcon,
   CctvIcon,
   AccessIcon,
   ClockIcon,
@@ -18,7 +18,7 @@ import {
 } from "./icons";
 
 const iconMap = {
-  reception: ReceptionIcon,
+  turnstile: TurnstileIcon,
   cctv: CctvIcon,
   access: AccessIcon,
   clock: ClockIcon,

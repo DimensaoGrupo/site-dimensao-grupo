@@ -12,7 +12,7 @@ export default function Logo({ className = "", height = 40 }: LogoProps) {
 
   return (
     <Link
-      href="#home"
+      href="/#home"
       aria-label="Grupo Dimensão — página inicial"
       className={`inline-flex shrink-0 items-center ${className}`}
     >
