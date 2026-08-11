@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import { stats } from "@/lib/content";
+import SectionAmbiance from "./SectionAmbiance";
 
 export default function StatsSection() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -43,8 +44,9 @@ export default function StatsSection() {
   );
 
   return (
-    <section className="section-y bg-[#f7f6f6]" ref={rootRef}>
-      <div className="container-page grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
+    <section className="section-y relative overflow-hidden bg-[#f7f6f6]" ref={rootRef}>
+      <SectionAmbiance topFadeFrom="rgba(32,26,26,0.04)" />
+      <div className="container-page relative z-10 grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <div key={stat.label} className="stat-item text-center">
             <span

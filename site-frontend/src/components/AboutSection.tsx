@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import SectionHeading from "./SectionHeading";
+import SectionAmbiance from "./SectionAmbiance";
 
 export default function AboutSection() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -49,8 +50,13 @@ export default function AboutSection() {
   );
 
   return (
-    <section id="sobre" className="section-y bg-[#f7f6f6]" ref={rootRef}>
-      <div className="container-page grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
+    <section
+      id="sobre"
+      className="section-y relative overflow-hidden bg-[#f7f6f6]"
+      ref={rootRef}
+    >
+      <SectionAmbiance topFadeFrom="rgba(32,26,26,0.02)" />
+      <div className="container-page relative z-10 grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <div className="about-media relative order-2 lg:order-1">
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
             <Image

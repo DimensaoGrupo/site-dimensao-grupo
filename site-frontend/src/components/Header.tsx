@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import Logo from "./Logo";
-import RollingText from "./RollingText";
-import { useRollingHover } from "@/hooks/useRollingHover";
 import { mainNav } from "@/lib/content";
 import {
   ChevronDownIcon,
@@ -21,8 +19,6 @@ export default function Header() {
   const mobilePanelRef = useRef<HTMLDivElement>(null);
   const mobileToggleRef = useRef<HTMLButtonElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const desktopCta = useRollingHover();
-  const mobileCta = useRollingHover();
   // Height of everything above the mobile panel (topbar + logo row), so the
   // panel's own scroll area can be capped to whatever viewport space is
   // actually left — it changes with the topbar's scroll-away animation, so
@@ -211,29 +207,20 @@ export default function Header() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-3">
-          <a
-            href="#contato"
-            className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-primary-dark md:inline-block"
-            {...desktopCta.handlers}
-          >
-            <RollingText text="Solicitar um Orçamento" active={desktopCta.active} />
-          </a>
-          <button
-            ref={mobileToggleRef}
-            type="button"
-            aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen((v) => !v)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground lg:hidden"
-          >
-            {mobileOpen ? (
-              <CloseIcon className="h-6 w-6" />
-            ) : (
-              <MenuIcon className="h-6 w-6" />
-            )}
-          </button>
-        </div>
+        <button
+          ref={mobileToggleRef}
+          type="button"
+          aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((v) => !v)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground lg:hidden"
+        >
+          {mobileOpen ? (
+            <CloseIcon className="h-6 w-6" />
+          ) : (
+            <MenuIcon className="h-6 w-6" />
+          )}
+        </button>
       </div>
 
       <div
@@ -276,14 +263,6 @@ export default function Header() {
               </li>
             ))}
             <li className="mt-2 flex flex-col gap-2 pt-2">
-              <a
-                href="#contato"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-white"
-                {...mobileCta.handlers}
-              >
-                <RollingText text="Solicitar um Orçamento" active={mobileCta.active} />
-              </a>
               <Link
                 href="https://colaborador.dimensaogrupo.com.br"
                 target="_blank"

@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
+import SectionAmbiance from "./SectionAmbiance";
 
 export default function QualitySection() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -39,8 +40,12 @@ export default function QualitySection() {
   );
 
   return (
-    <section className="section-y border-t border-gray-light/60 bg-[#f7f6f6]" ref={rootRef}>
-      <div className="container-page grid grid-cols-1 items-center gap-12 lg:grid-cols-[auto_1fr] lg:gap-16">
+    <section
+      className="section-y relative overflow-hidden border-t border-gray-light/60 bg-[#f7f6f6]"
+      ref={rootRef}
+    >
+      <SectionAmbiance topFadeFrom="rgba(32,26,26,0.02)" />
+      <div className="container-page relative z-10 grid grid-cols-1 items-center gap-12 lg:grid-cols-[auto_1fr] lg:gap-16">
         <div className="quality-seal shrink-0">
           <Image
             src="/images/seal-iso9001-iqnet.png"

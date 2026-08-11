@@ -72,6 +72,32 @@ h1, h2, h3, h4 {
   padding-block: var(--section-y);
 }
 
+/*
+ * Hero (#home, src/components/HeroClient.tsx) keeps its original
+ * bottom-anchored composition (h-[92vh], items-end) on every screen — that
+ * composition is intentional and unchanged here.
+ *
+ * The one real problem it has is specific to short, wide viewports
+ * ("notebook" heights, ~1280x720 to ~1366x768): because the content is
+ * anchored to the *bottom* of a height that shrinks with the viewport, a
+ * shorter viewport leaves less room above the text before it reaches the
+ * fixed header — not because of padding, but because the box itself is
+ * shorter. Padding-top has no effect here (it doesn't move a bottom-anchored
+ * child), so the fix is a height floor, not a spacing tweak.
+ *
+ * min-height only overrides height when it's larger, so this is inert
+ * above ~804px of viewport height (92vh already clears 740px by then) and
+ * does nothing at all below 768px width (mobile keeps its own composition,
+ * and no phone is 768px+ wide while also this short). Large screens and
+ * mobile are byte-for-byte the original rule; only the notebook band gets
+ * a small, fixed amount of extra room.
+ */
+@media (max-height: 820px) and (min-width: 768px) {
+  #home {
+    min-height: 740px;
+  }
+}
+
 /* Respect users who've asked the OS for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html {
