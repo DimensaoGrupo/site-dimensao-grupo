@@ -10,8 +10,8 @@ export default async function AdminMediaPage() {
     <div>
       <h1 className="text-2xl font-bold text-foreground">Mídia</h1>
       <p className="mt-1 text-sm text-gray-medium">
-        Imagens já enviadas por posts e banners ({files.length}). Novas imagens são adicionadas ao criar ou editar um
-        post ou banner.
+        Imagens já enviadas por posts, banners e serviços ({files.length}). Novas imagens são adicionadas ao criar ou
+        editar um post, banner ou serviço.
       </p>
 
       {files.length === 0 ? (

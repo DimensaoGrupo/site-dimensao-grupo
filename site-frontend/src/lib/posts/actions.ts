@@ -6,6 +6,9 @@ import { db } from "@/lib/db/client";
 import { posts } from "@/lib/db/schema";
 import { requireSession } from "@/lib/auth/session";
 import { slugify } from "@/lib/slugify";
+import { isPastInstant, zonedWallTimeToUtcIso } from "@/lib/datetime";
+import { logPostEvent } from "./history";
+import { attemptScheduledPublish } from "./scheduler";
 
 export type PostInput = {
   title: string;
@@ -133,8 +136,19 @@ export async function publishPost(id: number): Promise<PostActionResult> {
 
   await db
     .update(posts)
-    .set({ status: "published", publishedAt: new Date().toISOString() })
+    .set({
+      status: "published",
+      publishedAt: new Date().toISOString(),
+      scheduledAt: null,
+      // Resets bookkeeping from any previous failed attempt — this is also
+      // how republishing after a publish failure clears the error state.
+      publishAttempts: 0,
+      lastTransitionError: null,
+      lastTransitionErrorAt: null,
+    })
     .where(eq(posts.id, id));
+
+  await logPostEvent(id, "published_manual");
 
   revalidatePath("/admin/posts");
   revalidatePath("/blog");
@@ -143,6 +157,11 @@ export async function publishPost(id: number): Promise<PostActionResult> {
   return { id };
 }
 
+/**
+ * "Despublicar" — was published, now taken down. Distinct from "draft"
+ * (never published at all): the whole point of the 4-status model is to
+ * stop conflating the two.
+ */
 export async function unpublishPost(id: number): Promise<PostActionResult> {
   await requireSession();
   const [row] = await db
@@ -151,12 +170,122 @@ export async function unpublishPost(id: number): Promise<PostActionResult> {
     .where(eq(posts.id, id));
   if (!row) return { error: "Post não encontrado." };
 
-  await db.update(posts).set({ status: "draft" }).where(eq(posts.id, id));
+  await db
+    .update(posts)
+    .set({ status: "unpublished", unpublishedAt: new Date().toISOString() })
+    .where(eq(posts.id, id));
+
+  await logPostEvent(id, "unpublished_manual");
 
   revalidatePath("/admin/posts");
   revalidatePath("/blog");
   revalidatePath(`/blog/${row.slug}`);
   revalidatePath("/");
+  return { id };
+}
+
+export type ScheduleInput = { date: string; time: string };
+
+export async function schedulePost(id: number, input: ScheduleInput): Promise<PostActionResult> {
+  await requireSession();
+
+  const scheduledAt = zonedWallTimeToUtcIso(input.date, input.time);
+  if (isPastInstant(scheduledAt)) {
+    return { error: "A data e hora de agendamento precisam estar no futuro." };
+  }
+
+  const [existing] = await db.select({ status: posts.status }).from(posts).where(eq(posts.id, id));
+  if (!existing) return { error: "Post não encontrado." };
+
+  await db
+    .update(posts)
+    .set({
+      status: "scheduled",
+      scheduledAt,
+      publishAttempts: 0,
+      lastTransitionError: null,
+      lastTransitionErrorAt: null,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(posts.id, id));
+
+  await logPostEvent(id, existing.status === "scheduled" ? "schedule_changed" : "schedule_created", scheduledAt);
+
+  // Never public yet — only admin surfaces need to know about this.
+  revalidatePath("/admin/posts");
+  revalidatePath(`/admin/posts/${id}`);
+  revalidatePath("/admin/posts/scheduled");
+  revalidatePath("/admin/calendar");
+  return { id };
+}
+
+export async function cancelSchedule(id: number): Promise<PostActionResult> {
+  await requireSession();
+
+  const [row] = await db
+    .update(posts)
+    .set({
+      status: "draft",
+      scheduledAt: null,
+      publishAttempts: 0,
+      lastTransitionError: null,
+      lastTransitionErrorAt: null,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(and(eq(posts.id, id), eq(posts.status, "scheduled")))
+    .returning({ id: posts.id });
+
+  if (!row) return { error: "Este post não está agendado." };
+
+  await logPostEvent(id, "schedule_canceled");
+
+  revalidatePath("/admin/posts");
+  revalidatePath(`/admin/posts/${id}`);
+  revalidatePath("/admin/posts/scheduled");
+  revalidatePath("/admin/calendar");
+  return { id };
+}
+
+/** Sets or clears the optional auto-unpublish date — no history event of its own (only the eventual firing is logged, as unpublished_auto). */
+export async function scheduleUnpublish(id: number, input: ScheduleInput | null): Promise<PostActionResult> {
+  await requireSession();
+
+  let scheduledUnpublishAt: string | null = null;
+  if (input) {
+    scheduledUnpublishAt = zonedWallTimeToUtcIso(input.date, input.time);
+    if (isPastInstant(scheduledUnpublishAt)) {
+      return { error: "A data e hora de despublicação precisam estar no futuro." };
+    }
+  }
+
+  await db
+    .update(posts)
+    .set({ scheduledUnpublishAt, updatedAt: new Date().toISOString() })
+    .where(eq(posts.id, id));
+
+  revalidatePath("/admin/posts");
+  revalidatePath(`/admin/posts/${id}`);
+  return { id };
+}
+
+/** "Tentar novamente" — resets the retry bookkeeping and publishes right away instead of waiting for the next poll tick. */
+export async function retrySchedule(id: number): Promise<PostActionResult> {
+  await requireSession();
+
+  await db
+    .update(posts)
+    .set({ publishAttempts: 0, lastTransitionError: null, lastTransitionErrorAt: null })
+    .where(eq(posts.id, id));
+
+  const result = await attemptScheduledPublish(id);
+
+  revalidatePath("/admin/posts");
+  revalidatePath(`/admin/posts/${id}`);
+  revalidatePath("/admin/posts/scheduled");
+
+  if (!result.ok) {
+    return { error: result.error ?? "Não foi possível publicar agora. Tente novamente em instantes." };
+  }
   return { id };
 }
 

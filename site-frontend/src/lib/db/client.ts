@@ -14,7 +14,10 @@ const dataDir = path.join(process.cwd(), "data");
 // so it won't exist on a fresh clone/deploy — DatabaseSync doesn't create
 // its parent directory itself.
 mkdirSync(dataDir, { recursive: true });
-const sqlite = new DatabaseSync(path.join(dataDir, "cms.db"));
+// Overridable so throwaway scheduler/timezone test scripts can point at a
+// disposable file instead of the real dev database (see scripts/test-*.ts).
+const dbPath = process.env.CMS_DB_PATH ?? path.join(dataDir, "cms.db");
+const sqlite = new DatabaseSync(dbPath);
 
 sqlite.exec(`
   CREATE TABLE IF NOT EXISTS categories (
@@ -32,7 +35,13 @@ sqlite.exec(`
     cover_image TEXT,
     category_id INTEGER REFERENCES categories(id),
     status TEXT NOT NULL DEFAULT 'draft',
+    scheduled_at TEXT,
+    scheduled_unpublish_at TEXT,
     published_at TEXT,
+    unpublished_at TEXT,
+    publish_attempts INTEGER NOT NULL DEFAULT 0,
+    last_transition_error TEXT,
+    last_transition_error_at TEXT,
     created_at TEXT NOT NULL DEFAULT (current_timestamp),
     updated_at TEXT NOT NULL DEFAULT (current_timestamp),
     deleted_at TEXT,
@@ -52,6 +61,73 @@ sqlite.exec(`
     created_at TEXT NOT NULL DEFAULT (current_timestamp),
     updated_at TEXT NOT NULL DEFAULT (current_timestamp)
   );
+
+  CREATE TABLE IF NOT EXISTS post_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL REFERENCES posts(id),
+    event_type TEXT NOT NULL,
+    detail TEXT,
+    created_at TEXT NOT NULL DEFAULT (current_timestamp)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_post_events_post_id ON post_events(post_id);
+
+  CREATE TABLE IF NOT EXISTS services (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL UNIQUE,
+    title TEXT NOT NULL,
+    icon TEXT NOT NULL,
+    list_summary TEXT NOT NULL,
+    hero_subheading TEXT NOT NULL,
+    hero_intro TEXT NOT NULL,
+    hero_image TEXT NOT NULL,
+    intro_lead TEXT NOT NULL,
+    intro_detail TEXT NOT NULL,
+    benefits_json TEXT NOT NULL,
+    highlight_title TEXT NOT NULL,
+    highlight_text TEXT NOT NULL,
+    audience_description TEXT NOT NULL,
+    audiences_json TEXT NOT NULL,
+    credential_number TEXT,
+    credential_text TEXT,
+    status TEXT NOT NULL DEFAULT 'draft',
+    "order" INTEGER NOT NULL DEFAULT 0,
+    meta_title TEXT,
+    meta_description TEXT,
+    og_image TEXT,
+    created_at TEXT NOT NULL DEFAULT (current_timestamp),
+    updated_at TEXT NOT NULL DEFAULT (current_timestamp)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_services_status_order ON services(status, "order");
+`);
+
+// A DB file created before this feature existed won't have the columns
+// above (CREATE TABLE IF NOT EXISTS is a no-op on an existing table) — bring
+// it up to date column-by-column. ADD COLUMN never touches existing row
+// data, and SQLite has no "ADD COLUMN IF NOT EXISTS", so existence is
+// checked manually via PRAGMA table_info first, making this idempotent on
+// every boot.
+const existingColumns = new Set(
+  (sqlite.prepare("PRAGMA table_info(posts)").all() as { name: string }[]).map((c) => c.name),
+);
+const newPostColumns: Record<string, string> = {
+  scheduled_at: "TEXT",
+  scheduled_unpublish_at: "TEXT",
+  unpublished_at: "TEXT",
+  publish_attempts: "INTEGER NOT NULL DEFAULT 0",
+  last_transition_error: "TEXT",
+  last_transition_error_at: "TEXT",
+};
+for (const [column, ddlType] of Object.entries(newPostColumns)) {
+  if (!existingColumns.has(column)) {
+    sqlite.exec(`ALTER TABLE posts ADD COLUMN ${column} ${ddlType}`);
+  }
+}
+
+sqlite.exec(`
+  CREATE INDEX IF NOT EXISTS idx_posts_status_scheduled_at ON posts(status, scheduled_at);
+  CREATE INDEX IF NOT EXISTS idx_posts_status_scheduled_unpublish_at ON posts(status, scheduled_unpublish_at);
 `);
 
 export const db = drizzle(

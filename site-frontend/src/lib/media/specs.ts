@@ -1,6 +1,6 @@
 import path from "node:path";
 
-export type ImageKind = "cover" | "content" | "banner";
+export type ImageKind = "cover" | "content" | "banner" | "service";
 
 // Deliberately OUTSIDE public/: Next's production server (`next start`)
 // caches the public/ directory listing at boot, so a file written there
@@ -16,11 +16,12 @@ export const UPLOAD_URL_PREFIX = "/media/posts";
 // article page) — not guessed ahead of the layout existing.
 export const IMAGE_SPECS: Record<
   ImageKind,
-  { label: string; ratioLabel: string; maxWidth: number; maxHeight: number; maxBytes: number }
+  { label: string; ratioLabel: string; ratio: number; maxWidth: number; maxHeight: number; maxBytes: number }
 > = {
   cover: {
     label: "Imagem de destaque",
     ratioLabel: "16:9",
+    ratio: 16 / 9,
     maxWidth: 1920,
     maxHeight: 1080,
     maxBytes: 5 * 1024 * 1024,
@@ -28,6 +29,7 @@ export const IMAGE_SPECS: Record<
   content: {
     label: "Imagem do conteúdo",
     ratioLabel: "16:9",
+    ratio: 16 / 9,
     maxWidth: 1600,
     maxHeight: 900,
     maxBytes: 3 * 1024 * 1024,
@@ -41,8 +43,19 @@ export const IMAGE_SPECS: Record<
   banner: {
     label: "Banner do carousel",
     ratioLabel: "16:9",
+    ratio: 16 / 9,
     maxWidth: 1920,
     maxHeight: 1080,
     maxBytes: 6 * 1024 * 1024,
+  },
+  // ServiceHero.tsx (and AboutHero.tsx, same treatment) renders this in an
+  // aspect-[4/5] portrait crop — not 16:9 like the other three kinds.
+  service: {
+    label: "Imagem principal do serviço",
+    ratioLabel: "4:5",
+    ratio: 4 / 5,
+    maxWidth: 1600,
+    maxHeight: 2000,
+    maxBytes: 5 * 1024 * 1024,
   },
 };

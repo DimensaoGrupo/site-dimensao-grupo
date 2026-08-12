@@ -6,9 +6,7 @@ import { motion, type PanInfo } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import { useCarouselAutoplay } from "@/hooks/useCarouselAutoplay";
-import { useRollingHover } from "@/hooks/useRollingHover";
 import CarouselProgress from "./CarouselProgress";
-import RollingText from "./RollingText";
 
 export type HeroSlide = {
   id: number;
@@ -41,10 +39,6 @@ export default function HeroClient({ slides }: { slides: HeroSlide[] }) {
 
   const { index, progress, goTo, next, prev, isReducedMotion, interactionHandlers } =
     useCarouselAutoplay({ slideCount: slides.length, durationMs: AUTOPLAY_MS });
-  // Every slide shares the same CTA copy and only the active one is ever
-  // interactive (the rest are pointer-events-none), so one shared hover
-  // state is enough — no need to key it per slide.
-  const ctaRoll = useRollingHover();
 
   useGSAP(
     () => {
@@ -224,13 +218,6 @@ export default function HeroClient({ slides }: { slides: HeroSlide[] }) {
               <p className="mt-5 max-w-lg text-base text-white/85 md:text-lg">
                 {slide.text}
               </p>
-              <a
-                href="#contato"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-primary-dark"
-                {...ctaRoll.handlers}
-              >
-                <RollingText text="Entre em Contato" active={ctaRoll.active} />
-              </a>
             </div>
           ))}
         </div>

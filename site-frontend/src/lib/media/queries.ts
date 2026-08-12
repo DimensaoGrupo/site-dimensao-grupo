@@ -4,10 +4,10 @@ import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { sharp } from "./sharpConfig";
 import { db } from "@/lib/db/client";
-import { posts, banners } from "@/lib/db/schema";
+import { posts, banners, services } from "@/lib/db/schema";
 import { UPLOAD_DIR, UPLOAD_URL_PREFIX } from "./specs";
 
-export type MediaUsage = { type: "post" | "banner"; id: number; title: string };
+export type MediaUsage = { type: "post" | "banner" | "service"; id: number; title: string };
 
 export type MediaFile = {
   name: string;
@@ -20,9 +20,12 @@ export type MediaFile = {
 };
 
 async function getUsageByUrl(): Promise<Map<string, MediaUsage[]>> {
-  const [postRows, bannerRows] = await Promise.all([
+  const [postRows, bannerRows, serviceRows] = await Promise.all([
     db.select({ id: posts.id, title: posts.title, coverImage: posts.coverImage, ogImage: posts.ogImage }).from(posts),
     db.select({ id: banners.id, title: banners.title, image: banners.image }).from(banners),
+    db
+      .select({ id: services.id, title: services.title, heroImage: services.heroImage, ogImage: services.ogImage })
+      .from(services),
   ]);
 
   const usage = new Map<string, MediaUsage[]>();
@@ -43,6 +46,12 @@ async function getUsageByUrl(): Promise<Map<string, MediaUsage[]>> {
   }
   for (const banner of bannerRows) {
     add(banner.image, { type: "banner", id: banner.id, title: banner.title });
+  }
+  for (const service of serviceRows) {
+    add(service.heroImage, { type: "service", id: service.id, title: service.title });
+    if (service.ogImage && service.ogImage !== service.heroImage) {
+      add(service.ogImage, { type: "service", id: service.id, title: service.title });
+    }
   }
 
   return usage;

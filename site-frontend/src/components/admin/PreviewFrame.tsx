@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import ArticleView, { type ArticleViewData } from "@/components/blog/ArticleView";
+import { useState, type ReactNode } from "react";
 
-export default function PreviewFrame({ post }: { post: ArticleViewData }) {
+// Generic device-frame chrome (desktop/mobile toggle) around whatever real
+// public-facing view component the caller passes in — ArticleView for
+// posts, ServiceView for services. Never a simplified/separate renderer:
+// callers pass the exact same component the public site renders, so what's
+// approved here is what visitors see.
+export default function PreviewFrame({ children }: { children: ReactNode }) {
   const [viewport, setViewport] = useState<"desktop" | "mobile">("desktop");
 
   return (
@@ -35,9 +39,7 @@ export default function PreviewFrame({ post }: { post: ArticleViewData }) {
             viewport === "mobile" ? "max-w-[390px]" : "max-w-full"
           }`}
         >
-          <div className="max-h-[75vh] overflow-y-auto px-6 py-10 md:px-10">
-            <ArticleView post={post} />
-          </div>
+          <div className="max-h-[75vh] overflow-y-auto px-6 py-10 md:px-10">{children}</div>
         </div>
       </div>
     </div>

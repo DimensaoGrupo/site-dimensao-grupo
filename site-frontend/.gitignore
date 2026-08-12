@@ -38,6 +38,9 @@ yarn-error.log*
 /data/*.db
 /uploads/
 
+# PM2 logs (see ecosystem.config.js)
+/logs/
+
 # vercel
 .vercel
 

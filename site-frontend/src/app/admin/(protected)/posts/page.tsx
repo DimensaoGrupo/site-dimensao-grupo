@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { listPostsAdmin } from "@/lib/posts/queries";
 import { listCategories } from "@/lib/categories/queries";
+import { STATUS_LABEL, STATUS_EMOJI, STATUS_BADGE_CLASSES, type PostStatus } from "@/lib/posts/statusLabels";
+import { formatZoned } from "@/lib/datetime";
 import PostFilters from "./PostFilters";
 import PostRowActions from "./PostRowActions";
 
@@ -10,6 +12,8 @@ export const metadata = { title: "Posts — Painel Grupo Dimensão" };
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 }
+
+const STATUS_PARAM_VALUES: PostStatus[] = ["draft", "scheduled", "published", "unpublished"];
 
 export default async function AdminPostsPage({
   searchParams,
@@ -21,7 +25,7 @@ export default async function AdminPostsPage({
 
   const posts = await listPostsAdmin({
     search: params.q,
-    status: params.status === "published" || params.status === "draft" ? params.status : undefined,
+    status: STATUS_PARAM_VALUES.includes(params.status as PostStatus) ? (params.status as PostStatus) : undefined,
     categoryId: params.category ? Number(params.category) : undefined,
   });
 
@@ -75,20 +79,23 @@ export default async function AdminPostsPage({
                   <td className="px-5 py-3 text-gray-medium">{post.categoryName ?? "—"}</td>
                   <td className="px-5 py-3">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        post.status === "published"
-                          ? "bg-primary/10 text-primary"
-                          : "bg-gray-light/60 text-gray-medium"
-                      }`}
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_BADGE_CLASSES[post.status]}`}
                     >
-                      {post.status === "published" ? "Publicado" : "Rascunho"}
+                      {STATUS_EMOJI[post.status]} {STATUS_LABEL[post.status]}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-gray-medium">
-                    {formatDate(post.publishedAt ?? post.createdAt)}
+                    {post.status === "scheduled" && post.scheduledAt
+                      ? formatZoned(post.scheduledAt)
+                      : formatDate(post.publishedAt ?? post.createdAt)}
                   </td>
                   <td className="px-5 py-3">
-                    <PostRowActions id={post.id} title={post.title} status={post.status} />
+                    <PostRowActions
+                      id={post.id}
+                      title={post.title}
+                      status={post.status}
+                      lastTransitionError={post.lastTransitionError}
+                    />
                   </td>
                 </tr>
               ))}

@@ -1,14 +1,20 @@
-import "server-only";
-
-import { and, desc, eq, isNull, like, or, sql } from "drizzle-orm";
+// No "server-only" guard: the "server-only" package isn't resolvable
+// outside Next's own bundler, which breaks importing this module from plain
+// Node/tsx test scripts (scripts/test-scheduler.ts). Never imported by a
+// Client Component regardless — only Server Components, Server Actions and
+// tests import this file.
+import { and, desc, eq, gte, isNotNull, isNull, like, lt, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { posts, categories } from "@/lib/db/schema";
+import { posts, categories, postEvents } from "@/lib/db/schema";
+import { spTodayRangeUtc } from "@/lib/datetime";
 
 const notDeleted = isNull(posts.deletedAt);
 
+export type PostStatus = "draft" | "scheduled" | "published" | "unpublished";
+
 export type PostListFilters = {
   search?: string;
-  status?: "draft" | "published";
+  status?: PostStatus;
   categoryId?: number;
 };
 
@@ -19,7 +25,11 @@ const postWithCategory = {
   excerpt: posts.excerpt,
   coverImage: posts.coverImage,
   status: posts.status,
+  scheduledAt: posts.scheduledAt,
+  scheduledUnpublishAt: posts.scheduledUnpublishAt,
   publishedAt: posts.publishedAt,
+  unpublishedAt: posts.unpublishedAt,
+  lastTransitionError: posts.lastTransitionError,
   createdAt: posts.createdAt,
   updatedAt: posts.updatedAt,
   categoryId: posts.categoryId,
@@ -55,12 +65,14 @@ export async function getDashboardStats() {
     .where(notDeleted)
     .groupBy(posts.status);
 
-  const stats = { total: 0, published: 0, draft: 0 };
+  // Tallies whatever statuses actually appear — a status added later never
+  // gets silently dropped from the total the way a hardcoded pair of ifs
+  // would.
+  const stats = { total: 0, draft: 0, scheduled: 0, published: 0, unpublished: 0 };
   for (const row of rows) {
     const count = Number(row.count);
     stats.total += count;
-    if (row.status === "published") stats.published = count;
-    if (row.status === "draft") stats.draft = count;
+    stats[row.status] += count;
   }
   return stats;
 }
@@ -108,4 +120,66 @@ export async function isSlugTaken(slug: string, excludeId?: number) {
   const conditions = [eq(posts.slug, slug), notDeleted];
   const rows = await db.select({ id: posts.id }).from(posts).where(and(...conditions));
   return rows.some((row) => row.id !== excludeId);
+}
+
+/** "Publicações agendadas" screen — every future-scheduled post, soonest first. */
+export async function listScheduledPosts() {
+  return db
+    .select(postWithCategory)
+    .from(posts)
+    .leftJoin(categories, eq(posts.categoryId, categories.id))
+    .where(and(eq(posts.status, "scheduled"), notDeleted))
+    .orderBy(posts.scheduledAt);
+}
+
+/** Dashboard "Próximas publicações" widget. */
+export async function getUpcomingScheduledPosts(limit = 5) {
+  return db
+    .select(postWithCategory)
+    .from(posts)
+    .leftJoin(categories, eq(posts.categoryId, categories.id))
+    .where(and(eq(posts.status, "scheduled"), notDeleted))
+    .orderBy(posts.scheduledAt)
+    .limit(limit);
+}
+
+export async function getNotificationCounts() {
+  // "Published today" means the São Paulo calendar day, not the server's —
+  // SQLite's own date()/datetime() would use whatever zone the DB engine
+  // happens to run in, which is exactly the bug this whole feature is
+  // supposed to avoid.
+  const { startIso, endIso } = spTodayRangeUtc();
+
+  const [scheduledRows, failedRows, publishedTodayRows] = await Promise.all([
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(posts)
+      .where(and(eq(posts.status, "scheduled"), notDeleted)),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(posts)
+      .where(and(isNotNull(posts.lastTransitionError), notDeleted)),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(posts)
+      .where(
+        and(
+          eq(posts.status, "published"),
+          gte(posts.publishedAt, startIso),
+          lt(posts.publishedAt, endIso),
+          notDeleted,
+        ),
+      ),
+  ]);
+
+  return {
+    scheduledCount: Number(scheduledRows[0]?.count ?? 0),
+    failedCount: Number(failedRows[0]?.count ?? 0),
+    publishedTodayCount: Number(publishedTodayRows[0]?.count ?? 0),
+  };
+}
+
+/** History block on the post edit page — schedule/publish/unpublish events, newest first. */
+export async function getPostEvents(postId: number) {
+  return db.select().from(postEvents).where(eq(postEvents.postId, postId)).orderBy(desc(postEvents.createdAt));
 }

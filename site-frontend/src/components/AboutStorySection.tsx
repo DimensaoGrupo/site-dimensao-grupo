@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import SectionHeading from "./SectionHeading";
+import SymbolBackground from "./SymbolBackground";
 import { aboutStory } from "@/lib/content";
 
 /**
@@ -45,8 +46,9 @@ export default function AboutStorySection() {
   );
 
   return (
-    <section id="historia" className="section-y bg-white" ref={rootRef}>
-      <div className="container-page grid grid-cols-1 items-start gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+    <section id="historia" className="section-y relative overflow-hidden bg-white" ref={rootRef}>
+      <SymbolBackground position="left" opacity={0.05} />
+      <div className="container-page relative z-10 grid grid-cols-1 items-start gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div className="story-number flex flex-col items-start lg:sticky lg:top-32">
           <span className="font-display text-[6rem] leading-none font-extrabold text-primary md:text-[8rem]">
             32

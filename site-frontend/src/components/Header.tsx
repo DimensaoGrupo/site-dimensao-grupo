@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import Logo from "./Logo";
+import RollingText from "./RollingText";
+import { useRollingHover } from "@/hooks/useRollingHover";
 import { mainNav } from "@/lib/content";
 import {
   ChevronDownIcon,
@@ -13,12 +15,21 @@ import {
   PhoneIcon,
 } from "./icons";
 
-export default function Header() {
+type HeaderProps = {
+  // Dropdown items for the "Serviços" nav entry — fetched live by HeaderNav
+  // (a Server Component wrapper) since Header itself is a Client Component
+  // and can't read the DB directly.
+  services: { label: string; href: string }[];
+};
+
+export default function Header({ services }: HeaderProps) {
   const rootRef = useRef<HTMLElement>(null);
   const topBarRef = useRef<HTMLDivElement>(null);
   const mobilePanelRef = useRef<HTMLDivElement>(null);
   const mobileToggleRef = useRef<HTMLButtonElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const desktopCta = useRollingHover();
+  const mobileCta = useRollingHover();
   // Height of everything above the mobile panel (topbar + logo row), so the
   // panel's own scroll area can be capped to whatever viewport space is
   // actually left — it changes with the topbar's scroll-away animation, so
@@ -172,60 +183,73 @@ export default function Header() {
       <div className="container-page flex items-center justify-between py-3.5">
         <Logo height={40} />
 
-        <nav aria-label="Menu principal" className="hidden lg:block">
+        <nav aria-label="Menu principal" className="hidden xl:block">
           <ul className="flex items-center gap-8 text-[15px] font-medium text-foreground">
-            {mainNav.map((item) => (
-              <li key={item.label} className="group relative">
-                <a
-                  href={item.href}
-                  className="inline-flex items-center gap-1 py-2 transition-colors hover:text-primary"
-                >
-                  {item.label}
-                  {item.children && (
-                    <ChevronDownIcon className="h-3.5 w-3.5 text-gray-medium transition-transform duration-200 group-hover:rotate-180 group-hover:text-primary" />
-                  )}
-                </a>
+            {mainNav.map((item) => {
+              const children = item.href === "/#servicos" ? services : undefined;
+              const hasChildren = !!children && children.length > 0;
+              return (
+                <li key={item.label} className="group relative">
+                  <a
+                    href={item.href}
+                    className="inline-flex items-center gap-1 py-2 transition-colors hover:text-primary"
+                  >
+                    {item.label}
+                    {hasChildren && (
+                      <ChevronDownIcon className="h-3.5 w-3.5 text-gray-medium transition-transform duration-200 group-hover:rotate-180 group-hover:text-primary" />
+                    )}
+                  </a>
 
-                {item.children && (
-                  <div className="invisible absolute left-1/2 top-full w-72 -translate-x-1/2 translate-y-1 rounded-lg border border-gray-light/70 bg-white p-2 opacity-0 shadow-[0_16px_40px_rgba(32,26,26,0.12)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    <ul>
-                      {item.children.map((child) => (
-                        <li key={child.label}>
-                          <a
-                            href={child.href}
-                            className="block rounded-md px-3 py-2.5 text-sm text-foreground/90 transition-colors hover:bg-[#f7f6f6] hover:text-primary"
-                          >
-                            {child.label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </li>
-            ))}
+                  {hasChildren && (
+                    <div className="invisible absolute left-1/2 top-full w-72 -translate-x-1/2 translate-y-1 rounded-lg border border-gray-light/70 bg-white p-2 opacity-0 shadow-[0_16px_40px_rgba(32,26,26,0.12)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                      <ul>
+                        {children.map((child) => (
+                          <li key={child.label}>
+                            <a
+                              href={child.href}
+                              className="block rounded-md px-3 py-2.5 text-sm text-foreground/90 transition-colors hover:bg-[#f7f6f6] hover:text-primary"
+                            >
+                              {child.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
-        <button
-          ref={mobileToggleRef}
-          type="button"
-          aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((v) => !v)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground lg:hidden"
-        >
-          {mobileOpen ? (
-            <CloseIcon className="h-6 w-6" />
-          ) : (
-            <MenuIcon className="h-6 w-6" />
-          )}
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="#contato"
+            className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-primary-dark md:inline-block"
+            {...desktopCta.handlers}
+          >
+            <RollingText text="Solicitar um Orçamento" active={desktopCta.active} />
+          </a>
+          <button
+            ref={mobileToggleRef}
+            type="button"
+            aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground xl:hidden"
+          >
+            {mobileOpen ? (
+              <CloseIcon className="h-6 w-6" />
+            ) : (
+              <MenuIcon className="h-6 w-6" />
+            )}
+          </button>
+        </div>
       </div>
 
       <div
         ref={mobilePanelRef}
-        className="overflow-hidden border-t border-gray-light/60 bg-white lg:hidden"
+        className="overflow-hidden border-t border-gray-light/60 bg-white xl:hidden"
         style={{ height: mobileOpen ? "auto" : 0 }}
       >
         <nav
@@ -236,33 +260,44 @@ export default function Header() {
           }}
         >
           <ul className="flex flex-col gap-1">
-            {mainNav.map((item) => (
-              <li key={item.label}>
-                <a
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block rounded-md px-2 py-3 text-base font-medium text-foreground hover:bg-[#f7f6f6] hover:text-primary"
-                >
-                  {item.label}
-                </a>
-                {item.children && (
-                  <ul className="ml-4 mb-2 border-l border-gray-light pl-3">
-                    {item.children.map((child) => (
-                      <li key={child.label}>
-                        <a
-                          href={child.href}
-                          onClick={() => setMobileOpen(false)}
-                          className="block rounded-md px-2 py-2 text-sm text-gray-medium hover:text-primary"
-                        >
-                          {child.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
+            {mainNav.map((item) => {
+              const children = item.href === "/#servicos" ? services : undefined;
+              return (
+                <li key={item.label}>
+                  <a
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="block rounded-md px-2 py-3 text-base font-medium text-foreground hover:bg-[#f7f6f6] hover:text-primary"
+                  >
+                    {item.label}
+                  </a>
+                  {children && children.length > 0 && (
+                    <ul className="ml-4 mb-2 border-l border-gray-light pl-3">
+                      {children.map((child) => (
+                        <li key={child.label}>
+                          <a
+                            href={child.href}
+                            onClick={() => setMobileOpen(false)}
+                            className="block rounded-md px-2 py-2 text-sm text-gray-medium hover:text-primary"
+                          >
+                            {child.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
             <li className="mt-2 flex flex-col gap-2 pt-2">
+              <a
+                href="#contato"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-white"
+                {...mobileCta.handlers}
+              >
+                <RollingText text="Solicitar um Orçamento" active={mobileCta.active} />
+              </a>
               <Link
                 href="https://colaborador.dimensaogrupo.com.br"
                 target="_blank"

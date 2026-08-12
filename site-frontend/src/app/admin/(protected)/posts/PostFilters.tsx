@@ -45,8 +45,10 @@ export default function PostFilters({ categories }: { categories: Category[] }) 
         className="rounded-lg border border-gray-light bg-white px-3.5 py-2 text-sm outline-none focus:border-primary"
       >
         <option value="">Todos os status</option>
-        <option value="published">Publicados</option>
         <option value="draft">Rascunhos</option>
+        <option value="scheduled">Agendados</option>
+        <option value="published">Publicados</option>
+        <option value="unpublished">Despublicados</option>
       </select>
       <select
         defaultValue={searchParams.get("category") ?? ""}

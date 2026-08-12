@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getDashboardStats } from "@/lib/posts/queries";
+import { getDashboardStats, getUpcomingScheduledPosts } from "@/lib/posts/queries";
+import { formatRelative } from "@/lib/datetime";
 
 export const metadata = { title: "Dashboard — Painel Grupo Dimensão" };
 
@@ -25,17 +26,50 @@ function QuickAction({ href, label, description }: { href: string; label: string
 }
 
 export default async function AdminDashboardPage() {
-  const stats = await getDashboardStats();
+  const [stats, upcoming] = await Promise.all([getDashboardStats(), getUpcomingScheduledPosts(5)]);
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
       <p className="mt-1 text-sm text-gray-medium">Visão geral do conteúdo do Blog.</p>
 
-      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
         <StatCard label="Total de posts" value={stats.total} />
         <StatCard label="Publicados" value={stats.published} />
+        <StatCard label="Agendados" value={stats.scheduled} />
         <StatCard label="Rascunhos" value={stats.draft} />
+        <StatCard label="Despublicados" value={stats.unpublished} />
+      </div>
+
+      <div className="mt-10 flex items-center justify-between">
+        <h2 className="text-sm font-bold tracking-wide text-gray-medium uppercase">Próximas publicações</h2>
+        <Link href="/admin/calendar" className="text-sm font-semibold text-primary hover:text-primary-dark">
+          Ver calendário →
+        </Link>
+      </div>
+      <div className="mt-4 rounded-2xl border border-gray-light/70 bg-white">
+        {upcoming.length === 0 ? (
+          <p className="p-6 text-sm text-gray-medium">Nenhuma publicação agendada.</p>
+        ) : (
+          <ul className="divide-y divide-gray-light/60">
+            {upcoming.map((post) => (
+              <li key={post.id} className="flex items-center justify-between gap-4 px-6 py-3.5">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">{post.title}</p>
+                  <p className="mt-0.5 text-xs text-gray-medium">
+                    {post.scheduledAt && `🕐 ${formatRelative(post.scheduledAt)}`}
+                  </p>
+                </div>
+                <Link
+                  href={`/admin/posts/${post.id}`}
+                  className="shrink-0 text-xs font-semibold text-primary hover:text-primary-dark"
+                >
+                  Editar
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <h2 className="mt-10 text-sm font-bold tracking-wide text-gray-medium uppercase">Ações rápidas</h2>

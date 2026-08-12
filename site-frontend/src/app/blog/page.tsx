@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import Header from "@/components/Header";
+import HeaderNav from "@/components/HeaderNav";
 import Footer from "@/components/Footer";
 import SectionHeading from "@/components/SectionHeading";
+import SymbolBackground from "@/components/SymbolBackground";
 import { listPublishedPosts, countPublishedPosts } from "@/lib/posts/queries";
 
 export const metadata: Metadata = {
@@ -11,6 +12,10 @@ export const metadata: Metadata = {
   description:
     "Conteúdo produzido pelos nossos especialistas para manter você atualizado sobre segurança patrimonial.",
 };
+
+// Already dynamic in practice (reads searchParams), but explicit for the
+// same reason as src/app/page.tsx — see that file's comment.
+export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 9;
 
@@ -37,10 +42,11 @@ export default async function BlogPage({
       {/* Own stacking context so this always paints above the fixed,
           scroll-revealed footer that sits behind it (see Footer.tsx). */}
       <div className="relative z-10 bg-background">
-        <Header />
+        <HeaderNav />
         <main>
-        <section className="section-y">
-          <div className="container-page">
+        <section className="section-y relative overflow-hidden">
+          <SymbolBackground position="bottom" opacity={0.05} />
+          <div className="container-page relative z-10">
             <SectionHeading
               eyebrow="Blog"
               title="Últimas Notícias"

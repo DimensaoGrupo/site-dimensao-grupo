@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
@@ -8,8 +8,16 @@ import { gsap } from "@/lib/gsap";
 import { useRollingHover } from "@/hooks/useRollingHover";
 import SectionHeading from "./SectionHeading";
 import SectionAmbiance from "./SectionAmbiance";
+import SymbolBackground from "./SymbolBackground";
 import RollingText from "./RollingText";
 import { ArrowRightIcon } from "./icons";
+
+// Matches the flex `gap-8` on the scroll track below — needed in JS to work
+// out how far one arrow click should advance the strip.
+const TRACK_GAP_PX = 32;
+// Above this count the section switches from a static grid to a horizontal
+// carousel; below/at it, arrows would have nothing left to reveal.
+const CAROUSEL_THRESHOLD = 4;
 
 export type NewsCardData = {
   slug: string;
@@ -76,6 +84,35 @@ function NewsCard({ item }: { item: NewsCardData }) {
 
 export default function NewsSectionClient({ posts }: { posts: NewsCardData[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const isCarousel = posts.length > CAROUSEL_THRESHOLD;
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    // A few px of slack absorbs sub-pixel rounding at the boundaries so the
+    // arrows don't get stuck "enabled" one pixel short of the edge.
+    setCanScrollPrev(el.scrollLeft > 4);
+    setCanScrollNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    if (!isCarousel) return;
+    updateScrollState();
+    window.addEventListener("resize", updateScrollState);
+    return () => window.removeEventListener("resize", updateScrollState);
+  }, [isCarousel, updateScrollState]);
+
+  const scrollByCard = (direction: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const firstCard = el.firstElementChild as HTMLElement | null;
+    const step = (firstCard?.offsetWidth ?? el.clientWidth) + TRACK_GAP_PX;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollBy({ left: direction * step, behavior: reduceMotion ? "auto" : "smooth" });
+  };
 
   useGSAP(
     () => {
@@ -116,6 +153,7 @@ export default function NewsSectionClient({ posts }: { posts: NewsCardData[] }) 
       ref={rootRef}
     >
       <SectionAmbiance topFadeFrom="rgba(32,26,26,0.02)" />
+      <SymbolBackground position="left" opacity={0.05} />
       <div className="container-page relative z-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionHeading
@@ -123,16 +161,55 @@ export default function NewsSectionClient({ posts }: { posts: NewsCardData[] }) 
             title="Últimas Notícias"
             description="Conteúdo produzido pelos nossos especialistas para manter você atualizado sobre segurança patrimonial."
           />
-          <Link
-            href="/blog"
-            className="mb-1 text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
-          >
-            Ver todos os posts →
-          </Link>
+          <div className="mb-1 flex items-center gap-5">
+            <Link
+              href="/blog"
+              className="text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
+            >
+              Ver todos os posts →
+            </Link>
+            {isCarousel && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => scrollByCard(-1)}
+                  disabled={!canScrollPrev}
+                  aria-label="Notícias anteriores"
+                  className="group inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-light/70 text-foreground transition-all duration-200 hover:border-primary hover:text-primary active:scale-90 disabled:pointer-events-none disabled:opacity-30"
+                >
+                  <ArrowRightIcon className="h-4 w-4 rotate-180 transition-transform duration-200 group-hover:-translate-x-0.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollByCard(1)}
+                  disabled={!canScrollNext}
+                  aria-label="Próximas notícias"
+                  className="group inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-light/70 text-foreground transition-all duration-200 hover:border-primary hover:text-primary active:scale-90 disabled:pointer-events-none disabled:opacity-30"
+                >
+                  <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {posts.length === 0 ? (
           <p className="mt-14 text-sm text-gray-medium">Nenhum post publicado ainda.</p>
+        ) : isCarousel ? (
+          <div
+            ref={trackRef}
+            onScroll={updateScrollState}
+            className="no-scrollbar mt-14 flex snap-x snap-mandatory gap-8 overflow-x-auto scroll-smooth pb-1"
+          >
+            {posts.map((item) => (
+              <div
+                key={item.slug}
+                className="grid w-full shrink-0 snap-start sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]"
+              >
+                <NewsCard item={item} />
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {posts.map((item) => (

@@ -4,17 +4,22 @@ import { useRef } from "react";
 import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
-import { services } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
 import { ArrowRightIcon } from "./icons";
+
+export type AreaData = {
+  title: string;
+  description: string;
+  href: string;
+};
 
 /**
  * Areas of operation as a typographic list rather than another card grid —
  * ServicesSection on the home page already owns that treatment, so this
  * stays deliberately text-first (numbered rows, no icons/boxes) while still
- * reusing the same `services` data (and its `/servicos/*` hrefs).
+ * reusing the same services data (and its `/servicos/*` hrefs).
  */
-export default function AboutAreasSection() {
+export default function AboutAreasSection({ services }: { services: AreaData[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useGSAP(

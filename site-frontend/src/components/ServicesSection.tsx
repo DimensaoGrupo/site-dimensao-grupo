@@ -5,29 +5,20 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
-import { services } from "@/lib/content";
 import SectionHeading from "./SectionHeading";
 import SectionAmbiance from "./SectionAmbiance";
-import {
-  TurnstileIcon,
-  CctvIcon,
-  AccessIcon,
-  ClockIcon,
-  GardenIcon,
-  ShieldIcon,
-  ArrowRightIcon,
-} from "./icons";
+import SymbolBackground from "./SymbolBackground";
+import { ArrowRightIcon } from "./icons";
+import { SERVICE_ICON_MAP, type ServiceIconKey } from "@/lib/services/icons";
 
-const iconMap = {
-  turnstile: TurnstileIcon,
-  cctv: CctvIcon,
-  access: AccessIcon,
-  clock: ClockIcon,
-  garden: GardenIcon,
-  shield: ShieldIcon,
+export type ServiceCardData = {
+  icon: ServiceIconKey;
+  title: string;
+  description: string;
+  href: string;
 };
 
-export default function ServicesSection() {
+export default function ServicesSection({ services }: { services: ServiceCardData[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -59,6 +50,7 @@ export default function ServicesSection() {
       ref={rootRef}
     >
       <SectionAmbiance topFadeFrom="rgba(32,26,26,0.04)" />
+      <SymbolBackground position="right" opacity={0.05} />
       <div className="container-page relative z-10">
         <SectionHeading
           eyebrow="Somos Especialistas"
@@ -68,7 +60,7 @@ export default function ServicesSection() {
 
         <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => {
-            const Icon = iconMap[service.icon];
+            const Icon = SERVICE_ICON_MAP[service.icon];
             return (
               <Link key={service.title} href={service.href} className="service-card block">
                 <motion.div

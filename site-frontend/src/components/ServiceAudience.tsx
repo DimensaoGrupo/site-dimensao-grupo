@@ -4,14 +4,10 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import SectionHeading from "./SectionHeading";
-import { BuildingIcon, ReceptionIcon } from "./icons";
-
-const iconMap: Record<string, typeof BuildingIcon> = {
-  Comercial: BuildingIcon,
-  Residencial: ReceptionIcon,
-};
+import { SERVICE_ICON_MAP, type ServiceIconKey } from "@/lib/services/icons";
 
 export type ServiceAudienceItem = {
+  icon: ServiceIconKey;
   title: string;
   description: string;
 };
@@ -57,11 +53,11 @@ export default function ServiceAudience({ description, audiences }: ServiceAudie
         />
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {audiences.map((audience) => {
-            const Icon = iconMap[audience.title] ?? BuildingIcon;
+          {audiences.map((audience, index) => {
+            const Icon = SERVICE_ICON_MAP[audience.icon];
             return (
               <div
-                key={audience.title}
+                key={index}
                 className="audience-card rounded-2xl border border-gray-light/70 bg-[#f7f6f6] p-8"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white text-primary-muted">

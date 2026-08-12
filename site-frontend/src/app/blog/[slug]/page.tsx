@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
+import HeaderNav from "@/components/HeaderNav";
 import Footer from "@/components/Footer";
 import ArticleView from "@/components/blog/ArticleView";
 import { getPublishedPostBySlug } from "@/lib/posts/queries";
+
+// See src/app/page.tsx for why: this page has no dynamic API usage of its
+// own, so without this it's a static-caching candidate — exactly the case
+// where the scheduler's background revalidatePath call (which can't
+// actually run, for the same reason) would otherwise leave a stale
+// published/404 response stuck in the cache.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -39,7 +46,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       {/* Own stacking context so this always paints above the fixed,
           scroll-revealed footer that sits behind it (see Footer.tsx). */}
       <div className="relative z-10 bg-background">
-        <Header />
+        <HeaderNav />
         <main>
           <section className="section-y">
             <div className="container-page">

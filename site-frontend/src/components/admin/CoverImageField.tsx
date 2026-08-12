@@ -39,12 +39,11 @@ export default function CoverImageField({ label, kind, value, onChange }: CoverI
     const img = new window.Image();
     img.onload = () => {
       const ratio = img.width / img.height;
-      const targetRatio = 16 / 9;
       setPreview({
         width: img.width,
         height: img.height,
         sizeLabel: formatBytes(file.size),
-        ratioOk: Math.abs(ratio - targetRatio) < 0.15,
+        ratioOk: Math.abs(ratio - spec.ratio) < 0.15,
       });
       URL.revokeObjectURL(objectUrl);
     };
@@ -87,7 +86,13 @@ export default function CoverImageField({ label, kind, value, onChange }: CoverI
       </div>
 
       {value && (
-        <div className="relative mt-3 aspect-[16/9] w-full overflow-hidden rounded-xl bg-[#f7f6f6]">
+        // Tailwind can't pick up a dynamically-built arbitrary class (it only
+        // scans static strings in source), so a kind-driven ratio has to be
+        // an inline style rather than a computed `aspect-[W/H]` class.
+        <div
+          className="relative mt-3 w-full overflow-hidden rounded-xl bg-[#f7f6f6]"
+          style={{ aspectRatio: spec.ratio }}
+        >
           <Image src={value} alt="" fill sizes="600px" className="object-cover" />
         </div>
       )}
