@@ -3,14 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronDownIcon } from "@/components/icons";
 import { logout } from "../logout/actions";
 import NotificationBell from "./NotificationBell";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/services", label: "Serviços" },
-  { href: "/admin/posts", label: "Posts" },
-  { href: "/admin/posts/scheduled", label: "Agendados" },
+  {
+    href: "/admin/posts",
+    label: "Posts",
+    children: [{ href: "/admin/posts/scheduled", label: "Agendados" }],
+  },
   { href: "/admin/calendar", label: "Calendário" },
   { href: "/admin/categories", label: "Categorias" },
   { href: "/admin/banners", label: "Banners" },
@@ -21,24 +25,79 @@ type NotificationCounts = { scheduledCount: number; failedCount: number; publish
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  // Undefined = follow the route (auto-open the section containing the
+  // active page); once the user clicks the arrow, their choice overrides
+  // that default until they click it again.
+  const [manualOpen, setManualOpen] = useState<Record<string, boolean>>({});
+
+  // Prefix matching alone would mark "/admin/posts" active for
+  // "/admin/posts/scheduled" too (it's also a prefix match), highlighting both
+  // "Posts" and "Agendados" at once. Only the longest matching href — parent
+  // or nested child — should light up.
+  const allHrefs = NAV_ITEMS.flatMap((item) => [
+    { href: item.href, exact: item.exact },
+    ...(item.children?.map((child) => ({ href: child.href, exact: false })) ?? []),
+  ]);
+  const activeHref = allHrefs.reduce<string | null>((best, entry) => {
+    const matches = entry.exact ? pathname === entry.href : pathname.startsWith(entry.href);
+    if (!matches) return best;
+    if (!best || entry.href.length > best.length) return entry.href;
+    return best;
+  }, null);
 
   return (
     <nav className="flex flex-col gap-1">
       {NAV_ITEMS.map((item) => {
-        const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+        const isActive = item.href === activeHref;
+        const routeOpen = item.children ? pathname.startsWith(item.href) : false;
+        const isSectionOpen = manualOpen[item.href] ?? routeOpen;
+
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={`rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors ${
-              isActive
-                ? "bg-primary text-white"
-                : "text-white/75 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            {item.label}
-          </Link>
+          <div key={item.href}>
+            <div
+              className={`flex items-center rounded-lg text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-primary text-white"
+                  : "text-white/75 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Link href={item.href} onClick={onNavigate} className="flex-1 px-3.5 py-2.5">
+                {item.label}
+              </Link>
+              {item.children && (
+                <button
+                  type="button"
+                  onClick={() => setManualOpen((prev) => ({ ...prev, [item.href]: !isSectionOpen }))}
+                  aria-label={isSectionOpen ? `Recolher ${item.label}` : `Expandir ${item.label}`}
+                  aria-expanded={isSectionOpen}
+                  className="px-3.5 py-2.5"
+                >
+                  <ChevronDownIcon
+                    className={`h-3.5 w-3.5 transition-transform duration-200 ${isSectionOpen ? "rotate-180" : "-rotate-90"}`}
+                  />
+                </button>
+              )}
+            </div>
+
+            {item.children && isSectionOpen && (
+              <div className="mt-1 ml-4 flex flex-col gap-1 border-l border-white/10 pl-3">
+                {item.children.map((child) => (
+                  <Link
+                    key={child.href}
+                    href={child.href}
+                    onClick={onNavigate}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                      child.href === activeHref
+                        ? "bg-primary text-white"
+                        : "text-white/75 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {child.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         );
       })}
     </nav>

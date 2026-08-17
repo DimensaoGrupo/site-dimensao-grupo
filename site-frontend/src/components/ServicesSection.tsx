@@ -1,13 +1,12 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import SectionHeading from "./SectionHeading";
-import SectionAmbiance from "./SectionAmbiance";
-import SymbolBackground from "./SymbolBackground";
 import { ArrowRightIcon } from "./icons";
 import { SERVICE_ICON_MAP, type ServiceIconKey } from "@/lib/services/icons";
 
@@ -49,8 +48,14 @@ export default function ServicesSection({ services }: { services: ServiceCardDat
       className="section-y relative overflow-hidden bg-white"
       ref={rootRef}
     >
-      <SectionAmbiance topFadeFrom="rgba(32,26,26,0.04)" />
-      <SymbolBackground position="right" opacity={0.05} />
+      <Image
+        src="/images/bg-home.svg"
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="100vw"
+        className="pointer-events-none -z-0 object-cover"
+      />
       <div className="container-page relative z-10">
         <SectionHeading
           eyebrow="Somos Especialistas"
