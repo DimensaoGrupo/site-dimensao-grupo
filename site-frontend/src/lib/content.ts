@@ -46,21 +46,27 @@ export const officeInfo = {
 // Centralizing every /sobre-nos image reference here — swap a path and every
 // section that uses it updates, no hunting through components.
 export const aboutImages = {
-  hero: "/images/about-hero.svg",
+  // Temporary real photos (Pexels, free/commercial license) — validate the
+  // /sobre-nos layout ahead of the official Grupo Dimensão photography. Not
+  // CMS-editable: this whole object is a static code reference, same as
+  // before; see conversation for why (AboutHero/AboutGallery were never
+  // wired to institutional_content, and building that now would be a bigger
+  // change than this pass intended).
+  hero: "/media/posts/1787323423791-sobre-nos-hero-estrutura.webp",
   // No standalone office photo — the gallery's first image already covers
   // "fachada do escritório" (see below), so a third element in
   // OfficeSection would just crowd its text+map composition.
   gallery: [
     {
-      src: "/images/about-gallery-1.svg",
+      src: "/media/posts/1787323424162-sobre-nos-galeria-estrutura.webp",
       alt: "Fachada do escritório do Grupo Dimensão",
     },
     {
-      src: "/images/about-gallery-2.svg",
+      src: "/media/posts/1787323424568-sobre-nos-galeria-equipe.webp",
       alt: "Equipe do Grupo Dimensão em atuação",
     },
     {
-      src: "/images/about-gallery-3.svg",
+      src: "/media/posts/1787323425045-sobre-nos-galeria-operacao.webp",
       alt: "Central de monitoramento do Grupo Dimensão",
     },
   ],

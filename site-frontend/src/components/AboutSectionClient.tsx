@@ -91,6 +91,17 @@ export default function AboutSectionClient({ eyebrow, title, content, image, yea
       <SectionAmbiance topFadeFrom="rgba(32,26,26,0.02)" />
       <div className="container-page relative z-10 grid grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
         <div className="about-media relative order-2 lg:order-1">
+          {/* Offset color panel behind the photo — same "editorial card" trick
+              used in agency/institutional sites to make a single photo read
+              as a composed layout instead of "image dropped next to text".
+              Sits opposite the stat badge (bottom-left vs. bottom-right) so
+              the two never overlap; the section's own overflow-hidden
+              guarantees this never causes horizontal scroll even at the
+              narrowest breakpoints. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-5 -left-5 h-full w-full rounded-3xl bg-primary"
+          />
           {/* 4:5 (portrait) previously cropped landscape photos hard on the
               sides — a typical 3:2 photo lost ~45% of its width, cutting real
               subject matter. aspect-[4/3] keeps the section's tall-card/
@@ -98,7 +109,7 @@ export default function AboutSectionClient({ eyebrow, title, content, image, yea
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl">
             <Image
               src={image}
-              alt="Equipe de segurança do Grupo Dimensão em atuação"
+              alt="Recepção institucional em ambiente corporativo"
               fill
               sizes="(min-width: 1024px) 40vw, 90vw"
               unoptimized={image.endsWith(".svg")}
