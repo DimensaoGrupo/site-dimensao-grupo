@@ -24,18 +24,28 @@ export default function AboutAreasSection({ services }: { services: AreaData[] }
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".area-row",
-        { y: 20, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.6,
-          ease: "power3.out",
-          stagger: 0.08,
-          scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".area-row",
+          { y: 20, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: "power3.out",
+            stagger: 0.08,
+            scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".area-row", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );

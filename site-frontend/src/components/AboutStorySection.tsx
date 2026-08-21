@@ -1,76 +1,26 @@
-"use client";
+import { getActiveInstitutionalContentByType } from "@/lib/institutional/queries";
+import { getActiveStatisticByLabel } from "@/lib/statistics/queries";
+import AboutStorySectionClient from "./AboutStorySectionClient";
 
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/gsap";
-import SectionHeading from "./SectionHeading";
-import SymbolBackground from "./SymbolBackground";
-import { aboutStory } from "@/lib/content";
+// This section's own heading ("Uma trajetória construída com dedicação e
+// experiência" / "Quem Somos") is deliberately kept as its own presentation
+// choice, NOT sourced from the shared "about" CMS record's eyebrow/title —
+// see docs/ABOUT_CONTENT_ARCHITECTURE.md ("Decisão de headline"). This
+// section sits immediately below AboutHero on the same /sobre-nos page,
+// which already uses the "about" record's eyebrow/title ("Sobre Nós" /
+// "Experiência que se traduz em confiança"); showing the exact same heading
+// twice in one scroll would read as a mistake, not consistency. Only the
+// body paragraphs (genuinely duplicated text before this migration) come
+// from the CMS.
+export default async function AboutStorySection() {
+  const [about, yearsStat] = await Promise.all([
+    getActiveInstitutionalContentByType("about"),
+    getActiveStatisticByLabel("Anos de Experiência"),
+  ]);
+  // Body text comes from the CMS "about" record — without it there's
+  // nothing real to show under the heading, so the section doesn't render
+  // (no invented copy, same pattern as the other institutional sections).
+  if (!about) return null;
 
-/**
- * "Quem somos" — deliberately not another photo-plus-badge block like the
- * home AboutSection (the page already has photos in the hero, office and
- * gallery sections); the big numeral carries the visual weight here
- * instead, so this reads as its own moment rather than a re-skin.
- */
-export default function AboutStorySection() {
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      gsap.fromTo(
-        ".story-number",
-        { scale: 0.85, autoAlpha: 0 },
-        {
-          scale: 1,
-          autoAlpha: 1,
-          duration: 0.8,
-          ease: "back.out(1.6)",
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
-      gsap.fromTo(
-        ".story-copy",
-        { y: 24, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
-    },
-    { scope: rootRef },
-  );
-
-  return (
-    <section id="historia" className="section-y relative overflow-hidden bg-white" ref={rootRef}>
-      <SymbolBackground position="left" opacity={0.05} />
-      <div className="container-page relative z-10 grid grid-cols-1 items-start gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-        <div className="story-number flex flex-col items-start lg:sticky lg:top-32">
-          <span className="font-display text-[6rem] leading-none font-extrabold text-primary md:text-[8rem]">
-            32
-          </span>
-          <span className="mt-2 text-sm font-bold tracking-[0.2em] text-gray-medium uppercase">
-            Anos de mercado
-          </span>
-        </div>
-
-        <div>
-          <SectionHeading
-            eyebrow="Quem Somos"
-            title="Uma trajetória construída com dedicação e experiência"
-          />
-          <p className="story-copy mt-6 text-base leading-relaxed text-gray-medium md:text-lg">
-            {aboutStory.intro}
-          </p>
-          <p className="story-copy mt-4 text-base leading-relaxed text-gray-medium md:text-lg">
-            {aboutStory.detail}
-          </p>
-        </div>
-      </div>
-    </section>
-  );
+  return <AboutStorySectionClient content={about.content} years={yearsStat?.value ?? null} />;
 }

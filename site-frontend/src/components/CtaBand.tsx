@@ -34,18 +34,28 @@ export default function CtaBand({
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".cta-band-fade",
-        { y: 20, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: { trigger: rootRef.current, start: "top 82%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".cta-band-fade",
+          { y: 20, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: rootRef.current, start: "top 82%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".cta-band-fade", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );

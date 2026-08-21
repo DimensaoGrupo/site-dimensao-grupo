@@ -5,11 +5,13 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import SectionHeading from "./SectionHeading";
 import { SERVICE_ICON_MAP, type ServiceIconKey } from "@/lib/services/icons";
+import { serviceCardGridClasses } from "@/lib/services/cardGrid";
 
 export type ServiceAudienceItem = {
   icon: ServiceIconKey;
   title: string;
   description: string;
+  active?: boolean;
 };
 
 type ServiceAudienceProps = {
@@ -24,21 +26,32 @@ type ServiceAudienceProps = {
  */
 export default function ServiceAudience({ description, audiences }: ServiceAudienceProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const grid = serviceCardGridClasses(audiences.length);
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".audience-card",
-        { y: 28, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".audience-card",
+          { y: 28, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".audience-card", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );
@@ -52,13 +65,13 @@ export default function ServiceAudience({ description, audiences }: ServiceAudie
           description={description}
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className={`mt-10 ${grid.container}`}>
           {audiences.map((audience, index) => {
             const Icon = SERVICE_ICON_MAP[audience.icon];
             return (
               <div
                 key={index}
-                className="audience-card rounded-2xl border border-gray-light/70 bg-[#f7f6f6] p-8"
+                className={`${grid.item} audience-card rounded-2xl border border-gray-light/70 bg-[#f7f6f6] p-8`}
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white text-primary-muted">
                   <Icon className="h-7 w-7" />

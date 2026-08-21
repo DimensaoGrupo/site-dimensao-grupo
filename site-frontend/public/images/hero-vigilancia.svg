@@ -15,5 +15,5 @@
     <path d="M960 370 l150 50 v170 c0 110 -70 180 -150 210 c-80 -30 -150 -100 -150 -210 v-170 z"/>
     <path d="M890 545 l50 50 l100 -110" stroke-width="16"/>
   </g>
-  <text x="120" y="960" font-family="Arial, sans-serif" font-size="24" letter-spacing="3" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — VIGILÂNCIA PATRIMONIAL</text>
+  <text x="960" y="945" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — VIGILÂNCIA PATRIMONIAL</text>
 </svg>

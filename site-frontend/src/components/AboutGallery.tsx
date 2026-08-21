@@ -18,19 +18,29 @@ export default function AboutGallery() {
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".gallery-item",
-        { y: 30, autoAlpha: 0, scale: 1.04 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          scale: 1,
-          duration: 0.8,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".gallery-item",
+          { y: 30, autoAlpha: 0, scale: 1.04 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            scale: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".gallery-item", { y: 0, autoAlpha: 1, scale: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );

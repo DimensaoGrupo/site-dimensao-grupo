@@ -8,7 +8,6 @@ import { gsap } from "@/lib/gsap";
 import { useRollingHover } from "@/hooks/useRollingHover";
 import SectionHeading from "./SectionHeading";
 import SectionAmbiance from "./SectionAmbiance";
-import SymbolBackground from "./SymbolBackground";
 import RollingText from "./RollingText";
 import { ArrowRightIcon } from "./icons";
 
@@ -116,32 +115,43 @@ export default function NewsSectionClient({ posts }: { posts: NewsCardData[] }) 
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".news-card",
-        { y: 32, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.1,
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
-      // Wrapper (not the <Image> itself) so the entrance settle doesn't
-      // fight the existing CSS hover-zoom, which animates the image's own
-      // transform independently.
-      gsap.fromTo(
-        ".news-card-media",
-        { scale: 1.08 },
-        {
-          scale: 1,
-          duration: 1,
-          ease: "power3.out",
-          stagger: 0.1,
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".news-card",
+          { y: 32, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.1,
+            scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
+          },
+        );
+        // Wrapper (not the <Image> itself) so the entrance settle doesn't
+        // fight the existing CSS hover-zoom, which animates the image's own
+        // transform independently.
+        gsap.fromTo(
+          ".news-card-media",
+          { scale: 1.08 },
+          {
+            scale: 1,
+            duration: 1,
+            ease: "power3.out",
+            stagger: 0.1,
+            scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".news-card", { y: 0, autoAlpha: 1 });
+        gsap.set(".news-card-media", { scale: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef, dependencies: [posts.length] },
   );
@@ -153,7 +163,6 @@ export default function NewsSectionClient({ posts }: { posts: NewsCardData[] }) 
       ref={rootRef}
     >
       <SectionAmbiance topFadeFrom="rgba(32,26,26,0.02)" />
-      <SymbolBackground position="left" opacity={0.05} />
       <div className="container-page relative z-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <SectionHeading

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
-import { BadgeCheckIcon } from "./icons";
+import { BadgeCheck } from "lucide-react";
 
 type ServiceCredentialProps = {
   number: string;
@@ -20,17 +20,27 @@ export default function ServiceCredential({ number, text }: ServiceCredentialPro
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".credential-card",
-        { y: 20, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.6,
-          ease: "power3.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 88%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".credential-card",
+          { y: 20, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: "power3.out",
+            scrollTrigger: { trigger: rootRef.current, start: "top 88%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".credential-card", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );
@@ -40,7 +50,7 @@ export default function ServiceCredential({ number, text }: ServiceCredentialPro
       <div className="container-page">
         <div className="credential-card flex flex-col items-start gap-4 rounded-2xl border border-gray-light/70 bg-[#f7f6f6] p-6 sm:flex-row sm:items-center sm:gap-5 sm:p-7">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-primary">
-            <BadgeCheckIcon className="h-6 w-6" />
+            <BadgeCheck className="h-6 w-6" />
           </span>
           <div>
             <span className="text-xs font-bold tracking-[0.15em] text-primary uppercase">

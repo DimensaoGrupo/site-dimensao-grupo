@@ -100,6 +100,59 @@ sqlite.exec(`
   );
 
   CREATE INDEX IF NOT EXISTS idx_services_status_order ON services(status, "order");
+
+  CREATE TABLE IF NOT EXISTS statistics (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    value INTEGER NOT NULL,
+    prefix TEXT,
+    suffix TEXT,
+    label TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (current_timestamp),
+    updated_at TEXT NOT NULL DEFAULT (current_timestamp)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_statistics_active_order ON statistics(active, "order");
+
+  CREATE TABLE IF NOT EXISTS certifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    logo TEXT,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (current_timestamp),
+    updated_at TEXT NOT NULL DEFAULT (current_timestamp)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_certifications_active_order ON certifications(active, "order");
+
+  CREATE TABLE IF NOT EXISTS clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    logo TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (current_timestamp),
+    updated_at TEXT NOT NULL DEFAULT (current_timestamp)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_clients_active_order ON clients(active, "order");
+
+  CREATE TABLE IF NOT EXISTS institutional_content (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    eyebrow TEXT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    image TEXT,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (current_timestamp),
+    updated_at TEXT NOT NULL DEFAULT (current_timestamp)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_institutional_content_active_order ON institutional_content(active, "order");
 `);
 
 // A DB file created before this feature existed won't have the columns
@@ -129,6 +182,77 @@ sqlite.exec(`
   CREATE INDEX IF NOT EXISTS idx_posts_status_scheduled_at ON posts(status, scheduled_at);
   CREATE INDEX IF NOT EXISTS idx_posts_status_scheduled_unpublish_at ON posts(status, scheduled_unpublish_at);
 `);
+
+// banners predates the new single-message Hero (see docs/HOME_EXPERIENCE_BLUEPRINT.md
+// §4 / docs/HOME_IMPLEMENTATION_READINESS.md §2) — these 3 columns are new on an
+// already-existing table, so (unlike statistics/certifications/institutional_content,
+// which are brand-new tables) they need the same idempotent ALTER TABLE upgrade
+// pattern already used for `posts` above.
+const existingBannerColumns = new Set(
+  (sqlite.prepare("PRAGMA table_info(banners)").all() as { name: string }[]).map((c) => c.name),
+);
+const newBannerColumns: Record<string, string> = {
+  mobile_image: "TEXT",
+  cta_label: "TEXT",
+  cta_href: "TEXT",
+};
+for (const [column, ddlType] of Object.entries(newBannerColumns)) {
+  if (!existingBannerColumns.has(column)) {
+    sqlite.exec(`ALTER TABLE banners ADD COLUMN ${column} ${ddlType}`);
+  }
+}
+
+// institutional_content: `type`/`summary` added per
+// docs/ABOUT_CONTENT_ARCHITECTURE.md §11 — same idempotent ADD COLUMN
+// upgrade as banners above (this table already exists on any DB created
+// before this change).
+const existingInstitutionalColumns = new Set(
+  (sqlite.prepare("PRAGMA table_info(institutional_content)").all() as { name: string }[]).map((c) => c.name),
+);
+const newInstitutionalColumns: Record<string, string> = {
+  type: "TEXT",
+  summary: "TEXT",
+};
+for (const [column, ddlType] of Object.entries(newInstitutionalColumns)) {
+  if (!existingInstitutionalColumns.has(column)) {
+    sqlite.exec(`ALTER TABLE institutional_content ADD COLUMN ${column} ${ddlType}`);
+  }
+}
+
+// SQLite's ALTER TABLE ADD COLUMN can't attach a UNIQUE constraint directly
+// (only a plain column with a constant default) — a UNIQUE index created
+// separately is the standard SQLite way to retrofit that guarantee onto an
+// existing table without a full rebuild. NULL is not subject to a unique
+// index in SQLite (multiple NULLs are allowed), so rows with no `type` set
+// are unaffected; at most one row per real type value (about/mission/
+// vision/values/history) is enforced at the database layer — the same
+// "1 registro por type" rule the admin form/action also check up front for
+// a friendly error message (defense in depth, same two-layer pattern
+// services.slug already uses).
+sqlite.exec(`
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_institutional_content_type ON institutional_content(type);
+`);
+
+// services: `intro_eyebrow`/`intro_title` added to make the "O Serviço"
+// section heading per-service instead of hardcoded in ServiceView.tsx (it
+// was previously the same string — "Um serviço pensado para a rotina do seu
+// empreendimento" — on every service page regardless of which service).
+// NOT NULL with a literal DEFAULT is safe here (unlike the nullable
+// ALTER TABLE columns above): SQLite backfills every existing row with that
+// exact default in the same statement, and that default IS the sentence
+// already live on every service page today, so no visual change occurs
+// until an admin edits the new fields.
+const existingServiceColumns = new Set(
+  (sqlite.prepare("PRAGMA table_info(services)").all() as { name: string }[]).map((c) => c.name),
+);
+if (!existingServiceColumns.has("intro_eyebrow")) {
+  sqlite.exec(`ALTER TABLE services ADD COLUMN intro_eyebrow TEXT NOT NULL DEFAULT 'O Serviço'`);
+}
+if (!existingServiceColumns.has("intro_title")) {
+  sqlite.exec(
+    `ALTER TABLE services ADD COLUMN intro_title TEXT NOT NULL DEFAULT 'Um serviço pensado para a rotina do seu empreendimento'`,
+  );
+}
 
 export const db = drizzle(
   async (sqlText, params, method) => {

@@ -9,12 +9,17 @@ export type ServiceListEntry = {
   icon: ServiceIconKey;
   title: string;
   description: string;
+  // Optional so existing stored JSON (written before this field existed)
+  // still parses — treated as active. Lets an admin toggle a differential/
+  // audience off without deleting and retyping it later.
+  active?: boolean;
 };
 
 function isServiceListEntry(value: unknown): value is ServiceListEntry {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
-  return typeof v.icon === "string" && typeof v.title === "string" && typeof v.description === "string";
+  const activeOk = v.active === undefined || typeof v.active === "boolean";
+  return typeof v.icon === "string" && typeof v.title === "string" && typeof v.description === "string" && activeOk;
 }
 
 export function parseServiceList(json: string): ServiceListEntry[] {
@@ -27,6 +32,11 @@ export function parseServiceList(json: string): ServiceListEntry[] {
     // fall through
   }
   return [];
+}
+
+/** Public-facing render should only ever show active items — draft/off items stay in the JSON so the admin doesn't lose the content. */
+export function activeOnly(items: ServiceListEntry[]): ServiceListEntry[] {
+  return items.filter((item) => item.active !== false);
 }
 
 export function serializeServiceList(items: ServiceListEntry[]): string {

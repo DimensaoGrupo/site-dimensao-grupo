@@ -22,18 +22,28 @@ export default function ServiceIntro({ eyebrow, title, lead, detail }: ServiceIn
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".intro-copy",
-        { y: 20, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".intro-copy",
+          { y: 20, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".intro-copy", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );

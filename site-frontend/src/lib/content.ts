@@ -12,13 +12,6 @@ export const mainNav = [
   { label: "Trabalhe Conosco", href: "#contato" },
 ];
 
-export const stats = [
-  { value: 400, suffix: "+", label: "Clientes Satisfeitos" },
-  { value: 380, suffix: "+", label: "Casos de Sucesso" },
-  { value: 500, suffix: "+", label: "Postos de Atendimento" },
-  { value: 99, suffix: "%", label: "Índice de Satisfação" },
-];
-
 export const footerLinks = [
   { label: "Política de Privacidade", href: "/politica-de-privacidade" },
   { label: "Termos e Condições de Uso", href: "/termos-e-condicoes-de-uso" },
@@ -34,18 +27,6 @@ export const businessHours = [
   { days: "Sex", hours: "8h às 17h", weekdays: [5] },
   { days: "Sáb", hours: "8h às 12h", weekdays: [6] },
 ];
-
-// Content for /sobre-nos. Text below is quoted from the official site
-// (dimensaogrupo.com.br/?p=sobre-nos) — nothing here is invented. Where the
-// source doesn't say something (mission/vision/values as distinct
-// statements, team size, milestones), it's simply left out rather than
-// filled in with placeholder copy.
-export const aboutStory = {
-  intro:
-    "Há 32 anos no mercado, o Grupo Dimensão vem trabalhando e se aperfeiçoando para oferecer as melhores soluções em serviços tais como: Sistemas de Segurança Inteligente, Monitoramento, Portaria e Portaria remota, Vigilância, Zeladoria e Limpeza.",
-  detail:
-    "Com tecnologia de ponta, atendimento personalizado, qualidade de serviço e experiência, buscamos a melhoria contínua dos nossos serviços e a satisfação do cliente que é nosso maior patrimônio.",
-};
 
 export const officeInfo = {
   description:

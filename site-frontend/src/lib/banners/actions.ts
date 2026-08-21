@@ -11,6 +11,9 @@ export type BannerInput = {
   title: string;
   text: string;
   image: string | null;
+  mobileImage: string | null;
+  ctaLabel: string | null;
+  ctaHref: string | null;
 };
 
 export type BannerActionResult = { id?: number; error?: string };
@@ -25,6 +28,12 @@ function validate(input: BannerInput): string | null {
   }
   if (!input.text.trim()) return "O texto é obrigatório.";
   if (!input.image) return "Envie uma imagem para o banner.";
+  // Both-or-neither — a banner with only one of the two would render either
+  // a link with no label or a label that goes nowhere. See HeroClient.tsx,
+  // which only renders a CTA at all when both are present.
+  if ((input.ctaLabel && !input.ctaHref) || (!input.ctaLabel && input.ctaHref)) {
+    return "Preencha o texto e o destino do botão juntos, ou deixe os dois em branco.";
+  }
   return null;
 }
 
@@ -49,6 +58,9 @@ export async function createBanner(input: BannerInput): Promise<BannerActionResu
         title: input.title.trim(),
         text: input.text.trim(),
         image: input.image!,
+        mobileImage: input.mobileImage || null,
+        ctaLabel: input.ctaLabel?.trim() || null,
+        ctaHref: input.ctaHref?.trim() || null,
         active: true,
         order: nextOrder,
       })
@@ -74,6 +86,9 @@ export async function updateBanner(id: number, input: BannerInput): Promise<Bann
         title: input.title.trim(),
         text: input.text.trim(),
         image: input.image!,
+        mobileImage: input.mobileImage || null,
+        ctaLabel: input.ctaLabel?.trim() || null,
+        ctaHref: input.ctaHref?.trim() || null,
         updatedAt: new Date().toISOString(),
       })
       .where(eq(banners.id, id));

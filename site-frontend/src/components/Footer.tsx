@@ -146,7 +146,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <div className="container-page flex flex-col items-center justify-between gap-3 py-6 text-xs text-white/45 sm:flex-row">
-          <p>Grupo Dimensão Copyright © 2026. Todos os direitos reservados.</p>
+          <p>Grupo Dimensão Copyright © {new Date().getFullYear()}. Todos os direitos reservados.</p>
           <a
             href="https://colaborador.dimensaogrupo.com.br"
             target="_blank"

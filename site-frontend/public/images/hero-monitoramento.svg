@@ -17,5 +17,5 @@
     <circle cx="960" cy="530" r="24"/>
     <path d="M900 400 l30 -50 h60 l30 50" />
   </g>
-  <text x="120" y="960" font-family="Arial, sans-serif" font-size="24" letter-spacing="3" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — CFTV E MONITORAMENTO 24H</text>
+  <text x="960" y="945" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — CFTV E MONITORAMENTO 24H</text>
 </svg>

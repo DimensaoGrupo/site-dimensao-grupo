@@ -11,5 +11,5 @@
     <path d="M300 620h600v100H300z"/>
     <path d="M560 720v-140h80v140"/>
   </g>
-  <text x="70" y="880" font-family="Arial, sans-serif" font-size="24" letter-spacing="3" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — FACHADA</text>
+  <text x="600" y="880" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" letter-spacing="3" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — FACHADA</text>
 </svg>

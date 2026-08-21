@@ -4,11 +4,11 @@ import ServicesSection from "@/components/ServicesSection";
 import AboutSection from "@/components/AboutSection";
 import MissionSection from "@/components/MissionSection";
 import StatsSection from "@/components/StatsSection";
+import ClientsSection from "@/components/ClientsSection";
 import NewsSection from "@/components/NewsSection";
 import QualitySection from "@/components/QualitySection";
 import Footer from "@/components/Footer";
-import { listPublishedServices } from "@/lib/services/queries";
-import type { ServiceIconKey } from "@/lib/services/icons";
+import { listFeaturedServices } from "@/lib/services/queries";
 
 // NewsSection reads live post status (draft/scheduled/published/unpublished).
 // Scheduled auto-publish/unpublish happens from a background poller
@@ -20,7 +20,7 @@ import type { ServiceIconKey } from "@/lib/services/icons";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const services = await listPublishedServices();
+  const services = await listFeaturedServices();
 
   return (
     <>
@@ -32,7 +32,7 @@ export default async function Home() {
           <Hero />
           <ServicesSection
             services={services.map((service) => ({
-              icon: service.icon as ServiceIconKey,
+              image: service.heroImage,
               title: service.title,
               description: service.listSummary,
               href: `/servicos/${service.slug}`,
@@ -41,6 +41,7 @@ export default async function Home() {
           <AboutSection />
           <MissionSection />
           <StatsSection />
+          <ClientsSection />
           <NewsSection />
           <QualitySection />
         </main>

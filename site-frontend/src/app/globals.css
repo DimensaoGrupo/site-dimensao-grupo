@@ -14,6 +14,121 @@
 
   --container-max: 1280px;
   --section-y: clamp(4rem, 8vw, 7.5rem);
+
+  /* ---------------------------------------------------------------------
+   * Design System — Fase 1 (docs/DESIGN_SYSTEM_PLAN.md).
+   * Everything below is additive: no existing token above is renamed or
+   * changed in value. These formalize values already used ad hoc across
+   * components (a repeated #f7f6f6 background, four near-identical
+   * box-shadow strings, etc.) under names components can share instead of
+   * re-deriving. Nothing here is wired into an existing component yet —
+   * see docs/DESIGN_SYSTEM_PLAN.md §11 for the adoption plan.
+   * --------------------------------------------------------------------- */
+
+  /* Semantic color aliases — same values as the brand tokens above, named
+     by role (surface/border/accent) so new components read intent instead
+     of brand-specific names. */
+  --color-surface: var(--background);
+  --color-surface-alt: #f7f6f6;
+  --color-ink: #201a1a;
+  --color-border: var(--color-gray-light);
+  --color-text-secondary: var(--color-gray-medium);
+  --color-accent: var(--color-primary);
+  --color-accent-strong: var(--color-primary-dark);
+  --color-accent-muted: var(--color-primary-muted);
+  --color-state-error: #b3261e;
+  --color-state-success: #2e7d32;
+
+  /* Typography scale — fluid (clamp()-based) so it doesn't need a
+     per-breakpoint override ladder at every call site, matching how
+     --section-y already works. See docs/DESIGN_SYSTEM_PLAN.md §3. */
+  /* Sized by the smaller of width/height on purpose (not vw alone) — this
+     token is Hero-exclusive (src/components/HeroClient.tsx), and the Hero's
+     headline sits in a bottom-anchored, fixed-height box. A pure-vw clamp
+     renders *larger* text at 1366px width than at 1280px (wider viewport),
+     even though 1366's notebook-class viewports have no extra height to
+     spend on it — the larger size wraps one extra line and pushes the
+     eyebrow off-screen. Capping by vh too makes it shrink automatically on
+     short viewports regardless of width. See the #home media query below
+     for the matching bottom-anchor height floor. */
+  /* ~12% smaller than before on the vw/vh-driven part and the ceiling (the
+     mobile floor, 2.25rem, is left untouched on purpose — mobile already
+     resolves to that floor rather than the vw/vh branch, and the ask was
+     specifically to reduce desktop size, not mobile). With the wider
+     max-w-5xl content column (see HeroClient.tsx), the previous size
+     already read as "presence" but the taller resulting block ate more
+     vertical space than intended — a subtle reduction here keeps the
+     column-widening fix from item above while trimming the block height. */
+  --text-display: clamp(2.25rem, min(5.25vw, 7.9vh), 4.85rem);
+  --text-heading-lg: clamp(2rem, 3.5vw, 3rem);
+  --text-heading-md: clamp(1.5rem, 2.2vw, 2rem);
+  --text-heading-sm: clamp(1.125rem, 1.4vw, 1.25rem);
+  --text-body-lg: 1.125rem;
+  --text-body-md: 1rem;
+  --text-body-sm: 0.9375rem;
+  --text-caption: 0.8125rem;
+  /* StatsSection's one dominant number ("32 Anos de Experiência") —
+     deliberately close to --text-display's ceiling (docs/
+     HOME_EXPERIENCE_BLUEPRINT.md §5's own note: "provavelmente precisa de
+     algo maior que --text-heading-lg... próximo de --text-display") but
+     capped a bit under it so the Hero headline stays the single largest
+     text on the page. Plain vw-based (not height-aware like --text-display)
+     — this section flows with page content instead of living in a
+     fixed-viewport bottom-anchored box, so there's no notebook-height
+     collision to guard against. */
+  --text-stat: clamp(3.25rem, 7vw, 5.25rem);
+
+  /* Spacing — --section-y already existed; the container gutter is now a
+     named variable (same clamp() value as before) instead of being
+     inline-only in .container-page, so it can be reused. */
+  --space-container-x: clamp(1.25rem, 4vw, 2.5rem);
+  --space-card-padding: 2rem;
+  --space-card-gap: 1.5rem;
+
+  /* Radius — restates the rounded-xl/2xl/full scale already used
+     consistently across the site (icon boxes, cards, buttons), under
+     semantic, use-case names rather than a generic sm/md/lg ladder that
+     would collide with Tailwind's own built-in --radius-sm/md/lg theme
+     keys if registered below. */
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  /* Shadow — consolidates 4 near-duplicate ad hoc box-shadow values found
+     across ServicesSection/Header/OfficeSection/etc. into one reusable
+     scale. Named by use case (not sm/md/lg) for the same Tailwind
+     built-in-namespace collision reason as radius above. */
+  --shadow-soft: 0 4px 24px rgba(32, 26, 26, 0.08);
+  --shadow-elevated: 0 16px 40px rgba(32, 26, 26, 0.12);
+  --shadow-lifted: 0 20px 50px rgba(32, 26, 26, 0.12);
+  --shadow-accent: 0 20px 45px rgba(147, 32, 38, 0.16);
+
+  /* Z-index — Tailwind's z-* utilities aren't theme-driven in this
+     version, so these stay plain variables, consumed via arbitrary value
+     syntax (e.g. z-[var(--z-header)]) at call sites that adopt them. */
+  --z-decorative: 0;
+  --z-content: 10;
+  --z-header: 30;
+  --z-overlay: 40;
+  --z-critical: 50;
+
+  /* Motion — durations/easings usable directly in CSS (transition-duration,
+     transition-timing-function) via arbitrary-value syntax. The
+     cubic-bezier values approximate GSAP's power2.out/power3.out (for CSS
+     transitions and Motion, which don't understand GSAP's named eases);
+     GSAP call sites keep using "power2.out"/"power3.out" directly, unaffected.
+     Values that can't be expressed as a CSS custom property (Motion's spring
+     physics config, GSAP ease name strings) live in src/lib/motionTokens.ts —
+     the shared source both animation libraries already in use should import
+     from, not a third animation solution. */
+  --motion-duration-fast: 0.2s;
+  --motion-duration-base: 0.6s;
+  --motion-duration-slow: 1s;
+  --motion-ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --motion-ease-out-strong: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --motion-offset-sm: 20px;
+  --motion-offset-lg: 36px;
+  --motion-stagger: 0.1s;
 }
 
 @theme inline {
@@ -28,6 +143,40 @@
 
   --font-sans: var(--font-inter);
   --font-display: var(--font-manrope);
+
+  /* Design System — Fase 1. Registered here (not just in :root) so these
+     become real Tailwind utility classes (bg-surface-alt, text-accent,
+     shadow-accent, rounded-card, text-heading-lg, ...), the same way the
+     brand tokens above already do — additive, nothing existing changed. */
+  --color-surface: var(--color-surface);
+  --color-surface-alt: var(--color-surface-alt);
+  --color-ink: var(--color-ink);
+  --color-border: var(--color-border);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-accent: var(--color-accent);
+  --color-accent-strong: var(--color-accent-strong);
+  --color-accent-muted: var(--color-accent-muted);
+  --color-state-error: var(--color-state-error);
+  --color-state-success: var(--color-state-success);
+
+  --text-display: var(--text-display);
+  --text-heading-lg: var(--text-heading-lg);
+  --text-heading-md: var(--text-heading-md);
+  --text-heading-sm: var(--text-heading-sm);
+  --text-body-lg: var(--text-body-lg);
+  --text-body-md: var(--text-body-md);
+  --text-body-sm: var(--text-body-sm);
+  --text-caption: var(--text-caption);
+  --text-stat: var(--text-stat);
+
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-lifted: var(--shadow-lifted);
+  --shadow-accent: var(--shadow-accent);
 }
 
 * {
@@ -65,7 +214,17 @@ h1, h2, h3, h4 {
   width: 100%;
   max-width: var(--container-max);
   margin-inline: auto;
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  padding-inline: var(--space-container-x);
+}
+
+/* Full-bleed container — same horizontal gutter as .container-page, no
+ * max-width. For cinematic/editorial sections (Hero, Serviços, Portaria
+ * Remota) whose background/media should reach the viewport edge while
+ * their text content still respects the page gutter. Not used anywhere
+ * yet — introduced here so Fase 3+ doesn't reinvent it per component. */
+.container-bleed {
+  width: 100%;
+  padding-inline: var(--space-container-x);
 }
 
 .section-y {
@@ -119,5 +278,31 @@ h1, h2, h3, h4 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ClientsSectionClient marquee — edge fade so logos entering/leaving the
+ * strip blend out instead of hard-clipping at the container edge. */
+.clients-marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* The track renders the real client list plus enough repeats to keep the
+ * loop visually dense, plus a full second copy for the seamless -50% loop
+ * (see ClientsSectionClient.tsx). Under reduced motion the GSAP tween never
+ * runs, so those repeats would otherwise just sit frozen mid-loop; this
+ * hides everything but the first, real pass and lets the track wrap into a
+ * plain static row instead of staying pinned to its animated single-line
+ * width. */
+@media (prefers-reduced-motion: reduce) {
+  .clients-marquee-track {
+    width: 100% !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 2rem;
+  }
+  .clients-marquee-repeat {
+    display: none;
   }
 }

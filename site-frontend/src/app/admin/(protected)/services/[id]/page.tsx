@@ -27,6 +27,8 @@ export default async function EditServicePage({ params }: { params: Promise<{ id
             heroSubheading: service.heroSubheading,
             heroIntro: service.heroIntro,
             heroImage: service.heroImage,
+            introEyebrow: service.introEyebrow,
+            introTitle: service.introTitle,
             introLead: service.introLead,
             introDetail: service.introDetail,
             benefits: parseServiceList(service.benefitsJson),

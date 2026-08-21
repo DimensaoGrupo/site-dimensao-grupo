@@ -21,8 +21,8 @@ export async function uploadImage(formData: FormData): Promise<UploadResult> {
   await requireSession();
 
   const file = formData.get("file");
-  const kind = String(formData.get("kind") ?? "content") as ImageKind;
-  const spec = IMAGE_SPECS[kind] ?? IMAGE_SPECS.content;
+  const kind = String(formData.get("kind") ?? "cover") as ImageKind;
+  const spec = IMAGE_SPECS[kind] ?? IMAGE_SPECS.cover;
 
   if (!(file instanceof File)) {
     return { error: "Nenhum arquivo enviado." };

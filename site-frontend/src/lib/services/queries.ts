@@ -12,6 +12,11 @@ const serviceListShape = {
   title: services.title,
   icon: services.icon,
   listSummary: services.listSummary,
+  // Reused as the Home card's thumbnail (see ServicesSection.tsx) — every
+  // service already requires this for its own /servicos/[slug] hero, so
+  // this adds no new upload step rather than introducing a second image
+  // field for one photo most services will realistically share.
+  heroImage: services.heroImage,
   status: services.status,
   order: services.order,
   updatedAt: services.updatedAt,
@@ -22,13 +27,32 @@ export async function listServicesAdmin() {
   return db.select(serviceListShape).from(services).orderBy(asc(services.order));
 }
 
-/** Feeds the Home grid, the Sobre Nós "Áreas de Atuação" list, and the Header nav dropdown — one query, three consumers. */
+/** Feeds the Sobre Nós "Áreas de Atuação" list and the Header nav dropdown — every published service, no cap. */
 export async function listPublishedServices() {
   return db
     .select(serviceListShape)
     .from(services)
     .where(eq(services.status, "published"))
     .orderBy(asc(services.order));
+}
+
+// How many services the Home grid shows at once — the whole point is a
+// visually balanced 3x2 grid (see ServicesSection.tsx), not "every service
+// ever cadastrado". Change this single number to show more/fewer; nothing
+// else needs to change. `order` (already admin-controlled via drag/arrows in
+// ServiceList.tsx) decides which services make the cut — no separate
+// `featured` flag needed, since "the first N in the existing display order"
+// already is exactly that decision.
+export const HOME_SERVICES_LIMIT = 6;
+
+/** Home "Serviços" grid only — same published+ordered set as listPublishedServices(), capped to the first HOME_SERVICES_LIMIT. */
+export async function listFeaturedServices(limit: number = HOME_SERVICES_LIMIT) {
+  return db
+    .select(serviceListShape)
+    .from(services)
+    .where(eq(services.status, "published"))
+    .orderBy(asc(services.order))
+    .limit(limit);
 }
 
 export async function getServiceById(id: number) {

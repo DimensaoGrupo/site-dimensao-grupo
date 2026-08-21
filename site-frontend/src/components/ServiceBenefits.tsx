@@ -6,11 +6,13 @@ import { gsap } from "@/lib/gsap";
 import SectionHeading from "./SectionHeading";
 import SymbolBackground from "./SymbolBackground";
 import { SERVICE_ICON_MAP, type ServiceIconKey } from "@/lib/services/icons";
+import { serviceCardGridClasses } from "@/lib/services/cardGrid";
 
 export type ServiceBenefit = {
   icon: ServiceIconKey;
   title: string;
   description: string;
+  active?: boolean;
 };
 
 type ServiceBenefitsProps = {
@@ -22,23 +24,35 @@ type ServiceBenefitsProps = {
  * (icon box, rounded border, hover-free here since these aren't links to
  * anywhere, just informational).
  */
+// `benefits` is expected pre-filtered to active items — see ServiceView.tsx.
 export default function ServiceBenefits({ benefits }: ServiceBenefitsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const grid = serviceCardGridClasses(benefits.length);
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".benefit-card",
-        { y: 32, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.1,
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".benefit-card",
+          { y: 32, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.1,
+            scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".benefit-card", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );
@@ -52,13 +66,13 @@ export default function ServiceBenefits({ benefits }: ServiceBenefitsProps) {
           title="Por que contar com o Grupo Dimensão"
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={`mt-10 ${grid.container}`}>
           {benefits.map((benefit, index) => {
             const Icon = SERVICE_ICON_MAP[benefit.icon];
             return (
               <div
                 key={index}
-                className="benefit-card rounded-2xl border border-gray-light/70 bg-white p-8"
+                className={`${grid.item} benefit-card rounded-2xl border border-gray-light/70 bg-white p-8`}
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#f7f6f6] text-primary-muted">
                   <Icon className="h-7 w-7" />

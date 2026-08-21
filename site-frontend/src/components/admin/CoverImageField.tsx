@@ -83,6 +83,12 @@ export default function CoverImageField({ label, kind, value, onChange }: CoverI
           Recomendado: <strong>{spec.maxWidth} × {spec.maxHeight}px</strong> · Proporção{" "}
           <strong>{spec.ratioLabel}</strong> · JPG, PNG ou WebP · Máximo {(spec.maxBytes / (1024 * 1024)).toFixed(0)} MB
         </p>
+        {spec.secondaryNote && <p className="mt-1.5 text-xs text-gray-medium">{spec.secondaryNote}</p>}
+        <p className="mt-1.5 text-xs text-gray-medium/80">
+          {spec.displayFit === "cover"
+            ? "Outras proporções também funcionam — a imagem é recortada automaticamente para caber, então prefira a recomendada para evitar cortes indesejados."
+            : "Outras proporções também funcionam — a logo nunca é cortada, apenas ajustada dentro do espaço disponível."}
+        </p>
       </div>
 
       {value && (

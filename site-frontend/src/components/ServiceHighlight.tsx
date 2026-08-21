@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
-import { HeadsetIcon } from "./icons";
+import { Headset } from "lucide-react";
 
 type ServiceHighlightProps = {
   title: string;
@@ -21,18 +21,28 @@ export default function ServiceHighlight({ title, text }: ServiceHighlightProps)
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".highlight-fade",
-        { y: 24, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".highlight-fade",
+          { y: 24, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            stagger: 0.12,
+            scrollTrigger: { trigger: rootRef.current, start: "top 80%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".highlight-fade", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );
@@ -41,7 +51,7 @@ export default function ServiceHighlight({ title, text }: ServiceHighlightProps)
     <section className="section-y bg-[#201a1a]" ref={rootRef}>
       <div className="container-page flex flex-col items-center text-center">
         <div className="highlight-fade flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-          <HeadsetIcon className="h-8 w-8" />
+          <Headset className="h-8 w-8" />
         </div>
         <h2 className="highlight-fade mt-6 text-3xl font-extrabold text-white md:text-4xl">
           {title}

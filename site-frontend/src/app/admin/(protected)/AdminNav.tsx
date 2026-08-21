@@ -10,6 +10,10 @@ import NotificationBell from "./NotificationBell";
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/services", label: "Serviços" },
+  { href: "/admin/statistics", label: "Estatísticas" },
+  { href: "/admin/certifications", label: "Certificações" },
+  { href: "/admin/clients", label: "Clientes" },
+  { href: "/admin/institutional", label: "Institucional" },
   {
     href: "/admin/posts",
     label: "Posts",

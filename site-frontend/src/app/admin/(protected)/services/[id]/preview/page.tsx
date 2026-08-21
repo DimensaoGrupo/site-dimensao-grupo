@@ -40,10 +40,13 @@ export default async function ServicePreviewPage({ params }: { params: Promise<{
         <PreviewFrame>
           <ServiceView
             service={{
+              slug: service.slug,
               title: service.title,
               heroSubheading: service.heroSubheading,
               heroIntro: service.heroIntro,
               heroImage: service.heroImage,
+              introEyebrow: service.introEyebrow,
+              introTitle: service.introTitle,
               introLead: service.introLead,
               introDetail: service.introDetail,
               benefits: parseServiceList(service.benefitsJson),

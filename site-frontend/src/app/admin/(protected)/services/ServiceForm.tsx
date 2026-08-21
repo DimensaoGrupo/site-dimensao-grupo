@@ -28,6 +28,8 @@ type ExistingService = {
   heroSubheading: string;
   heroIntro: string;
   heroImage: string;
+  introEyebrow: string;
+  introTitle: string;
   introLead: string;
   introDetail: string;
   benefits: ServiceListEntry[];
@@ -58,7 +60,10 @@ function ServiceListEditor({
     onChange(items.filter((_, i) => i !== index));
   }
   function addItem() {
-    onChange([...items, { icon: "shield", title: "", description: "" }]);
+    onChange([...items, { icon: "shield", title: "", description: "", active: true }]);
+  }
+  function toggleActive(index: number) {
+    updateItem(index, { active: items[index].active === false });
   }
   function moveItem(index: number, direction: "up" | "down") {
     const swapWith = direction === "up" ? index - 1 : index + 1;
@@ -82,8 +87,13 @@ function ServiceListEditor({
       </div>
       <div className="mt-2 space-y-3">
         {items.length === 0 && <p className="text-xs text-gray-medium">Nenhum item ainda.</p>}
-        {items.map((item, index) => (
-          <div key={index} className="rounded-lg border border-gray-light bg-[#f7f6f6] p-3">
+        {items.map((item, index) => {
+          const isActive = item.active !== false;
+          return (
+          <div
+            key={index}
+            className={`rounded-lg border border-gray-light bg-[#f7f6f6] p-3 ${!isActive ? "opacity-50" : ""}`}
+          >
             <div className="flex items-center gap-2">
               <select
                 value={item.icon}
@@ -123,6 +133,15 @@ function ServiceListEditor({
                 </button>
                 <button
                   type="button"
+                  onClick={() => toggleActive(index)}
+                  aria-label={isActive ? "Desativar item" : "Ativar item"}
+                  title={isActive ? "Desativar (some do site, continua salvo)" : "Ativar"}
+                  className={`rounded p-1 text-xs hover:text-foreground ${isActive ? "text-gray-medium" : "text-primary"}`}
+                >
+                  {isActive ? "●" : "○"}
+                </button>
+                <button
+                  type="button"
                   onClick={() => removeItem(index)}
                   aria-label="Remover item"
                   className="rounded p-1 text-xs text-gray-medium hover:text-primary"
@@ -139,7 +158,8 @@ function ServiceListEditor({
               className="mt-2 w-full rounded-lg border border-gray-light bg-white px-2.5 py-1.5 text-sm text-foreground outline-none focus:border-primary"
             />
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -156,6 +176,8 @@ export default function ServiceForm({ service }: { service?: ExistingService }) 
   const [heroSubheading, setHeroSubheading] = useState(service?.heroSubheading ?? "");
   const [heroIntro, setHeroIntro] = useState(service?.heroIntro ?? "");
   const [heroImage, setHeroImage] = useState<string | null>(service?.heroImage ?? null);
+  const [introEyebrow, setIntroEyebrow] = useState(service?.introEyebrow ?? "O Serviço");
+  const [introTitle, setIntroTitle] = useState(service?.introTitle ?? "");
   const [introLead, setIntroLead] = useState(service?.introLead ?? "");
   const [introDetail, setIntroDetail] = useState(service?.introDetail ?? "");
   const [benefits, setBenefits] = useState<ServiceListEntry[]>(service?.benefits ?? []);
@@ -191,6 +213,8 @@ export default function ServiceForm({ service }: { service?: ExistingService }) 
       heroSubheading,
       heroIntro,
       heroImage,
+      introEyebrow,
+      introTitle,
       introLead,
       introDetail,
       benefits,
@@ -393,6 +417,30 @@ export default function ServiceForm({ service }: { service?: ExistingService }) 
 
           <div className="space-y-6 rounded-2xl border border-gray-light/70 bg-white p-6">
             <span className="text-sm font-bold tracking-wide text-gray-medium uppercase">O Serviço</span>
+            <div>
+              <label htmlFor="introEyebrow" className="text-sm font-medium text-foreground">
+                Etiqueta (eyebrow)
+              </label>
+              <input
+                id="introEyebrow"
+                value={introEyebrow}
+                onChange={(e) => setIntroEyebrow(e.target.value)}
+                placeholder="Ex.: O Serviço"
+                className="mt-1.5 w-full rounded-lg border border-gray-light bg-white px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label htmlFor="introTitle" className="text-sm font-medium text-foreground">
+                Título
+              </label>
+              <input
+                id="introTitle"
+                value={introTitle}
+                onChange={(e) => setIntroTitle(e.target.value)}
+                placeholder="Ex.: Segurança e atendimento sem interromper a rotina"
+                className="mt-1.5 w-full rounded-lg border border-gray-light bg-white px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              />
+            </div>
             <div>
               <label htmlFor="introLead" className="text-sm font-medium text-foreground">
                 Texto principal

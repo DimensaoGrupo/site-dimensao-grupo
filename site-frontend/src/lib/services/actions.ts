@@ -18,6 +18,8 @@ export type ServiceInput = {
   heroSubheading: string;
   heroIntro: string;
   heroImage: string | null;
+  introEyebrow: string;
+  introTitle: string;
   introLead: string;
   introDetail: string;
   benefits: ServiceListEntry[];
@@ -60,6 +62,9 @@ function validate(input: ServiceInput): string | null {
     return "Preencha o subtítulo e a introdução do Hero.";
   }
   if (!input.heroImage) return "Envie a imagem principal do serviço.";
+  if (!input.introEyebrow.trim() || !input.introTitle.trim()) {
+    return "Preencha a etiqueta e o título da seção 'O Serviço'.";
+  }
   if (!input.introLead.trim() || !input.introDetail.trim()) {
     return "Preencha os textos da seção 'O Serviço'.";
   }
@@ -119,6 +124,8 @@ export async function createService(input: ServiceInput): Promise<ServiceActionR
         heroSubheading: input.heroSubheading.trim(),
         heroIntro: input.heroIntro.trim(),
         heroImage: input.heroImage!,
+        introEyebrow: input.introEyebrow.trim(),
+        introTitle: input.introTitle.trim(),
         introLead: input.introLead.trim(),
         introDetail: input.introDetail.trim(),
         benefitsJson: serializeServiceList(input.benefits),
@@ -169,6 +176,8 @@ export async function updateService(id: number, input: ServiceInput): Promise<Se
         heroSubheading: input.heroSubheading.trim(),
         heroIntro: input.heroIntro.trim(),
         heroImage: input.heroImage!,
+        introEyebrow: input.introEyebrow.trim(),
+        introTitle: input.introTitle.trim(),
         introLead: input.introLead.trim(),
         introDetail: input.introDetail.trim(),
         benefitsJson: serializeServiceList(input.benefits),

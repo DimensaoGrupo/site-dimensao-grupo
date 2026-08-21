@@ -21,29 +21,40 @@ export default function OfficeSection() {
 
   useGSAP(
     () => {
-      gsap.fromTo(
-        ".office-copy",
-        { y: 24, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
-      gsap.fromTo(
-        ".office-map",
-        { y: 32, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.8,
-          ease: "power3.out",
-          delay: 0.15,
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          ".office-copy",
+          { y: 24, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power3.out",
+            scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
+          },
+        );
+        gsap.fromTo(
+          ".office-map",
+          { y: 32, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            delay: 0.15,
+            scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
+          },
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".office-copy", { y: 0, autoAlpha: 1 });
+        gsap.set(".office-map", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );

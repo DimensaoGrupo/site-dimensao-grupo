@@ -24,30 +24,44 @@ export default function SectionHeading({
 
   useGSAP(
     () => {
-      const words = gsap.utils.toArray<HTMLElement>(".heading-word-inner");
-      gsap.fromTo(
-        words,
-        { yPercent: 115 },
-        {
-          yPercent: 0,
-          duration: 0.8,
-          ease: "power4.out",
-          stagger: 0.035,
-          scrollTrigger: { trigger: rootRef.current, start: "top 85%" },
-        },
-      );
-      gsap.fromTo(
-        ".heading-fade",
-        { y: 16, autoAlpha: 0 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          duration: 0.7,
-          ease: "power2.out",
-          delay: 0.15,
-          scrollTrigger: { trigger: rootRef.current, start: "top 85%" },
-        },
-      );
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const words = gsap.utils.toArray<HTMLElement>(".heading-word-inner");
+        gsap.fromTo(
+          words,
+          { yPercent: 115 },
+          {
+            yPercent: 0,
+            duration: 0.8,
+            ease: "power4.out",
+            stagger: 0.035,
+            scrollTrigger: { trigger: rootRef.current, start: "top 85%" },
+          },
+        );
+        gsap.fromTo(
+          ".heading-fade",
+          { y: 16, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.7,
+            ease: "power2.out",
+            delay: 0.15,
+            scrollTrigger: { trigger: rootRef.current, start: "top 85%" },
+          },
+        );
+      });
+
+      // Reduced motion: heading and eyebrow/description are visible
+      // immediately, never gated behind a scroll trigger that would leave
+      // them hidden until the user happens to scroll past this point.
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(".heading-word-inner", { yPercent: 0 });
+        gsap.set(".heading-fade", { y: 0, autoAlpha: 1 });
+      });
+
+      return () => mm.revert();
     },
     { scope: rootRef },
   );

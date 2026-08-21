@@ -18,5 +18,5 @@
     <circle cx="1030" cy="530" r="10" fill="#ffffff" fill-opacity="0.5" stroke="none"/>
     <path d="M860 380 v-40 h200 v40"/>
   </g>
-  <text x="120" y="960" font-family="Arial, sans-serif" font-size="24" letter-spacing="3" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — PORTARIA E CONTROLE DE ACESSO</text>
+  <text x="960" y="945" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1" fill="#ffffff" fill-opacity="0.35">IMAGEM ILUSTRATIVA — PORTARIA E CONTROLE DE ACESSO</text>
 </svg>

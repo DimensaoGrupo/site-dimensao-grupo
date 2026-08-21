@@ -60,6 +60,8 @@ async function main() {
     heroIntro:
       "Profissionais treinados, atendimento personalizado e uma central especializada 24h para a tranquilidade do seu empreendimento.",
     heroImage: "/images/service-portaria-hero.svg",
+    introEyebrow: "O Serviço",
+    introTitle: "Um serviço pensado para a rotina do seu empreendimento",
     introLead:
       "Com profissionais altamente treinados, qualificados e atendimento personalizado, o serviço de portaria conta com uma estrutura operacional que oferece todo o suporte necessário, permitindo o contato a distância com uma central especializada 24h, garantindo a tranquilidade e comodidade dos nossos clientes.",
     introDetail:

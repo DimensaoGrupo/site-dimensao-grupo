@@ -11,6 +11,9 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-banners": "tsx scripts/seed-banners.ts",
     "db:seed-services": "tsx scripts/seed-services.ts",
+    "db:seed-statistics": "tsx scripts/seed-statistics.ts",
+    "db:seed-certifications": "tsx scripts/seed-certifications.ts",
+    "db:seed-institutional": "tsx scripts/seed-institutional.ts",
     "test:timezone": "tsx scripts/test-timezone.ts",
     "test:scheduler": "tsx scripts/test-scheduler.ts"
   },
@@ -25,6 +28,7 @@
     "drizzle-orm": "^0.45.2",
     "gsap": "^3.15.0",
     "jose": "^6.2.8",
+    "lucide-react": "^1.33.0",
     "motion": "^13.0.0",
     "next": "16.3.0",
     "react": "19.2.8",

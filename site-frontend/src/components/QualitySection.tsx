@@ -48,11 +48,16 @@ export default function QualitySection() {
       <div className="container-page relative z-10 grid grid-cols-1 items-center gap-12 lg:grid-cols-[auto_1fr] lg:gap-16">
         <div className="quality-seal shrink-0">
           <Image
-            src="/images/seal-iso9001-iqnet.png"
+            src="/images/certificados.svg"
             alt="Selos de Certificação ISO 9001 e IQNET"
-            width={3150}
-            height={1550}
-            className="h-28 w-auto md:h-32"
+            width={1920}
+            height={1080}
+            // Next's image optimizer 400s on SVG sources unless
+            // dangerouslyAllowSVG is set globally (next.config.ts) — this is
+            // a trusted local static asset, so skip the optimizer for it
+            // rather than touch that global config.
+            unoptimized
+            className="h-40 w-auto md:h-48 lg:h-56"
             loading="lazy"
           />
         </div>
